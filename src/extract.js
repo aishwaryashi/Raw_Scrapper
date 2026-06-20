@@ -1705,20 +1705,52 @@ export async function extractScrapedAdDetails({ url, html, page }) {
         }
       }
 
-      // Strategy 1b: Regex scan on the full page HTML for Sulekha CDN rental image URLs.
-      // This catches photos that exist only in inline JavaScript data blobs, JSON attributes,
-      // or gallery lightbox markup injected after showAdPhoto() was clicked — i.e. ALL the
-      // "4 more photos" images that were never in the initial visible DOM.
-      // Runs unconditionally so it supplements whatever Strategy 1 already found.
+      // Strategy 1b: Capture additional photos loaded by showAdPhoto().
+      // showAdPhoto() was clicked in routes.js before this function was called, so the
+      // gallery modal (which contains ONLY this ad's photos) should be open in the live DOM.
+      // We target the modal specifically — NOT the whole page — to avoid picking up
+      // related-listing or similar-listing photos from other sections.
       {
-        const pageHtml = document.documentElement.outerHTML;
-        const cdnMatches = pageHtml.match(
-          /https:\/\/usimg\.sulekha\.io\/cdn\/rentals\/images\/[^\s"'<>\\]+/gi
-        ) || [];
-        for (const rawUrl of cdnMatches) {
-          // Strip any trailing HTML attribute characters captured by the greedy pattern
-          const cleanUrl = rawUrl.replace(/['")\s<>\\]+$/, '');
-          addPhoto(cleanUrl);
+        const sulekhaRentalsPath = 'usimg.sulekha.io/cdn/rentals/images/';
+
+        // 1. <a href> inside #photoDiv — some Sulekha themes link full-size photo URLs
+        if (photoDiv) {
+          for (const a of photoDiv.querySelectorAll('a')) {
+            const href = a.getAttribute('href') || '';
+            if (href.includes(sulekhaRentalsPath)) addPhoto(href);
+          }
+        }
+
+        // 2. Gallery / lightbox overlay opened by showAdPhoto().
+        //    We search common gallery library selectors and only accept
+        //    images from the Sulekha rentals CDN to avoid false positives.
+        const gallerySelectors = [
+          // Fancybox (very common on jQuery sites)
+          '#fancybox-inner', '.fancybox-inner',
+          '#fancybox-wrap', '.fancybox-wrap',
+          '.fancybox-container', '.fancybox-slide',
+          // Lightbox2
+          '#lightbox', '.lightbox',
+          // PhotoSwipe
+          '.pswp', '.pswp__item',
+          // Generic popup / overlay patterns
+          '[class*="gallery-popup"]', '[class*="photo-popup"]',
+          '[class*="gallery-modal"]', '[class*="photo-modal"]',
+          '[class*="image-viewer"]', '[class*="photo-viewer"]',
+          '[class*="carousel-inner"]',
+          // Bootstrap modal when open
+          '.modal.show', '.modal.in',
+        ];
+        for (const sel of gallerySelectors) {
+          try {
+            for (const el of document.querySelectorAll(sel)) {
+              const imgs = (el.tagName === 'IMG') ? [el] : el.querySelectorAll('img');
+              for (const img of imgs) {
+                const src = img.getAttribute('src') || img.getAttribute('data-src') || '';
+                if (src.includes(sulekhaRentalsPath)) addPhoto(src);
+              }
+            }
+          } catch {}
         }
       }
 
