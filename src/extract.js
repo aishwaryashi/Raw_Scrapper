@@ -639,8 +639,11 @@ function extractPhotos(ad, raw, $) {
     const excludedEls = new Set();
     $(EXCLUDED_SECTIONS).find('img').each((_, el) => excludedEls.add(el));
 
-    // Primary gallery containers only — stop at the first one that has images
+    // Primary gallery containers only — stop at the first one that has images.
+    // #photoDiv / .roomimageblock are Sulekha's own gallery IDs (highest priority).
     const galleryCandidates = [
+      '#photoDiv',
+      '.roomimageblock',
       '[class*="photo-gallery"]',
       '[class*="listing-photo"]',
       '[class*="property-photo"]',
@@ -1107,7 +1110,10 @@ async function extractLiveDom(page) {
     // Strategy 1: PRIMARY gallery only — the first matching container NOT inside
     // an excluded section. We stop as soon as we find images, so related-listing
     // carousels lower on the page are never reached.
+    // #photoDiv / .roomimageblock are Sulekha's own gallery IDs (highest priority).
     const primaryGallerySelectors = [
+      '#photoDiv',
+      '.roomimageblock',
       '[class*="photo-gallery"]',
       '[class*="listing-photo"]',
       '[class*="property-photo"]',
@@ -1648,37 +1654,59 @@ export async function extractScrapedAdDetails({ url, html, page }) {
         verifiedCredentials.push(...[...new Set(vm)]);
       }
 
-      // ── Photos from primary gallery only ──────────────────────────────────
+      // ── Photos: #photoDiv is Sulekha's authoritative gallery container ────────
+      // Collect every img[src] inside it. Fall back to generic gallery selectors
+      // only if #photoDiv is absent. Never pull from related-listing sections.
       const photos = [];
       const seenUrls = new Set();
-      const excludedRoots = [...document.querySelectorAll(
-        '[class*="similar"], [class*="related"], [class*="explore"], [class*="nearby-listing"], [class*="browse"], [class*="recommend"], [class*="sponsor"]'
-      )];
-      const isExcluded = el => excludedRoots.some(r => r.contains(el));
 
-      for (const sel of [
-        '[class*="photo-gallery"]', '[class*="listing-photo"]', '[class*="property-photo"]',
-        '[class*="image-gallery"]', '[class*="gallery"]', '[class*="carousel"]', '[class*="swiper"]',
-      ]) {
-        const container = [...document.querySelectorAll(sel)].find(c => !isExcluded(c));
-        if (!container) continue;
-        let added = 0;
-        for (const img of container.querySelectorAll('img')) {
-          if (isExcluded(img)) continue;
-          const src = img.src || img.getAttribute('data-src') || img.getAttribute('data-lazy-src') || img.getAttribute('data-original') || '';
-          if (src && !src.startsWith('data:') && !seenUrls.has(src)) {
-            seenUrls.add(src); photos.push(src); added++;
-          }
+      const addSrc = (src) => {
+        if (src && !src.startsWith('data:') && !seenUrls.has(src)) {
+          seenUrls.add(src); photos.push(src);
         }
-        for (const el of container.querySelectorAll('[style*="background-image"]')) {
-          if (isExcluded(el)) continue;
-          const m = (el.getAttribute('style') || '').match(/url\(['"]?([^'")\s]+)['"]?\)/);
-          if (m?.[1] && !m[1].startsWith('data:') && !seenUrls.has(m[1])) {
-            seenUrls.add(m[1]); photos.push(m[1]); added++;
-          }
+      };
+
+      // Strategy 1: Sulekha-specific container by ID / class (highest confidence)
+      const photoDiv = document.getElementById('photoDiv') || document.querySelector('.roomimageblock');
+      if (photoDiv) {
+        for (const img of photoDiv.querySelectorAll('img')) {
+          // Prefer the real src; data-src is a lazy-load placeholder
+          addSrc(img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src') || img.getAttribute('data-original') || '');
         }
-        if (added > 0) break;
       }
+
+      // Strategy 2: Generic gallery selectors (only if #photoDiv not found or empty)
+      if (!photos.length) {
+        const excludedRoots = [...document.querySelectorAll(
+          '[class*="similar"], [class*="related"], [class*="explore"], [class*="nearby-listing"], [class*="browse"], [class*="recommend"], [class*="sponsor"]'
+        )];
+        const isExcluded = el => excludedRoots.some(r => r.contains(el));
+
+        for (const sel of [
+          '[class*="photo-gallery"]', '[class*="listing-photo"]', '[class*="property-photo"]',
+          '[class*="image-gallery"]', '[class*="gallery"]', '[class*="carousel"]', '[class*="swiper"]',
+        ]) {
+          const container = [...document.querySelectorAll(sel)].find(c => !isExcluded(c));
+          if (!container) continue;
+          let added = 0;
+          for (const img of container.querySelectorAll('img')) {
+            if (isExcluded(img)) continue;
+            const src = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src') || img.getAttribute('data-original') || '';
+            if (src && !src.startsWith('data:') && !seenUrls.has(src)) {
+              seenUrls.add(src); photos.push(src); added++;
+            }
+          }
+          for (const el of container.querySelectorAll('[style*="background-image"]')) {
+            if (isExcluded(el)) continue;
+            const m = (el.getAttribute('style') || '').match(/url\(['"]?([^'")\s]+)['"]?\)/);
+            if (m?.[1] && !m[1].startsWith('data:') && !seenUrls.has(m[1])) {
+              seenUrls.add(m[1]); photos.push(m[1]); added++;
+            }
+          }
+          if (added > 0) break;
+        }
+      } // end if (!photos.length)
+
       // og:image as primary/fallback
       const ogSrc = document.querySelector('meta[property="og:image"]')?.content;
       if (ogSrc && !seenUrls.has(ogSrc)) { seenUrls.add(ogSrc); photos.unshift(ogSrc); }

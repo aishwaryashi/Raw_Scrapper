@@ -1,0 +1,727 @@
+[{
+  "_scrapedAt": "2026-06-20T12:03:07.033Z",
+  "_sourceUrl": "https://indianroommates.sulekha.com/1bedroom1bath-apartment-includes-all-utilities-close-to-downtown-jersey-city-and-grove-st-ready-to-move-in_rentals_jersey-city-nj_1565512",
+  "_adId": "1565512",
+  "property": {
+    "adId": "not_found",
+    "title": "1bedroom1bath Apartment  Includes All Utilities!!! Close To Downtown Jersey City And Grove St Ready To Move In!",
+    "listingUrl": "https://us.sulekha.com/",
+    "propertyType": "not_found",
+    "accommodationType": "not_found",
+    "buildingName": "not_found",
+    "beds": "not_found",
+    "baths": "not_found",
+    "squareFeet": "not_found",
+    "rentAmount": "not_found",
+    "rentCurrency": "USD",
+    "deposit": "not_found",
+    "rentFrequency": "not_found",
+    "utilitiesIncluded": "not_found",
+    "negotiable": "not_found",
+    "propertyOwnerOrAgent": "not_found",
+    "_extra": {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Sulekha NRI",
+      "operatingSystem": "iOS, Android",
+      "applicationCategory": "BusinessApplication",
+      "description": "Sulekha NRI connects Indians in the US with local service providers for home services, education, events, and more.",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Sulekha US LLC",
+        "url": "https://us.sulekha.com/"
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "Sulekha US LLC",
+        "url": "https://us.sulekha.com/"
+      },
+      "downloadUrl": [
+        "https://apps.apple.com/us/app/sulekha-us-canada/id483101010",
+        "https://play.google.com/store/apps/details?id=com.nriapp"
+      ],
+      "installUrl": [
+        "https://apps.apple.com/us/app/sulekha-us-canada/id483101010",
+        "https://play.google.com/store/apps/details?id=com.nriapp"
+      ],
+      "screenshot": [
+        "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource116/v4/fc/78/96/fc7896f6-e4fe-6717-eaf5-aa91b1f0e27b/73f48688-dd3b-4a9e-bc08-a3dc82c3a8f3_1242x2688.png/230x0w.webp",
+        "https://play-lh.googleusercontent.com/cORJs_ZZ1f8ORapHq7uRtx2jGzTbTPWPV7ad1suLgfSd55eHNQ09F9govLqwEkgkZjI=w2560-h1440-rw"
+      ],
+      "sameAs": [
+        "https://apps.apple.com/app/sulekha-nri/id483101010",
+        "https://play.google.com/store/apps/details?id=com.nriapp"
+      ],
+      "ROW_MARKET_TRENDS_LINECHART": [
+        {
+          "month": "Jan-25",
+          "avgprice": 2430,
+          "monthtext": "Jan",
+          "mouseovertxt": "avg rent for Jan 2025 $2430",
+          "year": 2025
+        },
+        {
+          "month": "Feb-25",
+          "avgprice": 2224,
+          "monthtext": "Feb",
+          "mouseovertxt": "avg rent for Feb 2025 $2224",
+          "year": 2025
+        },
+        {
+          "month": "Mar-25",
+          "avgprice": 2208,
+          "monthtext": "Mar",
+          "mouseovertxt": "avg rent for Mar 2025 $2208",
+          "year": 2025
+        },
+        {
+          "month": "Apr-25",
+          "avgprice": 2356,
+          "monthtext": "Apr",
+          "mouseovertxt": "avg rent for Apr 2025 $2356",
+          "year": 2025
+        },
+        {
+          "month": "May-25",
+          "avgprice": 2282,
+          "monthtext": "May",
+          "mouseovertxt": "avg rent for May 2025 $2282",
+          "year": 2025
+        },
+        {
+          "month": "Jun-25",
+          "avgprice": 2457,
+          "monthtext": "Jun",
+          "mouseovertxt": "avg rent for Jun 2025 $2457",
+          "year": 2025
+        },
+        {
+          "month": "Jul-25",
+          "avgprice": 2458,
+          "monthtext": "Jul",
+          "mouseovertxt": "avg rent for Jul 2025 $2458",
+          "year": 2025
+        },
+        {
+          "month": "Aug-25",
+          "avgprice": 2473,
+          "monthtext": "Aug",
+          "mouseovertxt": "avg rent for Aug 2025 $2473",
+          "year": 2025
+        },
+        {
+          "month": "Sep-25",
+          "avgprice": 2454,
+          "monthtext": "Sep",
+          "mouseovertxt": "avg rent for Sep 2025 $2454",
+          "year": 2025
+        },
+        {
+          "month": "Oct-25",
+          "avgprice": 2352,
+          "monthtext": "Oct",
+          "mouseovertxt": "avg rent for Oct 2025 $2352",
+          "year": 2025
+        },
+        {
+          "month": "Nov-25",
+          "avgprice": 2319,
+          "monthtext": "Nov",
+          "mouseovertxt": "avg rent for Nov 2025 $2319",
+          "year": 2025
+        },
+        {
+          "month": "Dec-25",
+          "avgprice": 2471,
+          "monthtext": "Dec",
+          "mouseovertxt": "avg rent for Dec 2025 $2471",
+          "year": 2025
+        },
+        {
+          "month": "Jan-26",
+          "avgprice": 1899,
+          "monthtext": "Jan",
+          "mouseovertxt": "avg rent for Jan 2026 $1899",
+          "year": 2026
+        },
+        {
+          "month": "Feb-26",
+          "avgprice": 2498,
+          "monthtext": "Feb",
+          "mouseovertxt": "avg rent for Feb 2026 $2498",
+          "year": 2026
+        },
+        {
+          "month": "Mar-26",
+          "avgprice": 2511,
+          "monthtext": "Mar",
+          "mouseovertxt": "avg rent for Mar 2026 $2511",
+          "year": 2026
+        },
+        {
+          "month": "Apr-26",
+          "avgprice": 2182,
+          "monthtext": "Apr",
+          "mouseovertxt": "avg rent for Apr 2026 $2182",
+          "year": 2026
+        },
+        {
+          "month": "May-26",
+          "avgprice": 2200,
+          "monthtext": "May",
+          "mouseovertxt": "avg rent for May 2026 $2200",
+          "year": 2026
+        },
+        {
+          "month": "Jun-26",
+          "avgprice": 2106,
+          "monthtext": "Jun",
+          "mouseovertxt": "avg rent for Jun 2026 $2106",
+          "year": 2026
+        },
+        {
+          "month": "Jul-26",
+          "avgprice": 0,
+          "monthtext": "Jul",
+          "mouseovertxt": "avg rent for Jul 2026 $0",
+          "year": 2026
+        },
+        {
+          "month": "Aug-26",
+          "avgprice": 0,
+          "monthtext": "Aug",
+          "mouseovertxt": "avg rent for Aug 2026 $0",
+          "year": 2026
+        },
+        {
+          "month": "Sep-26",
+          "avgprice": 0,
+          "monthtext": "Sep",
+          "mouseovertxt": "avg rent for Sep 2026 $0",
+          "year": 2026
+        },
+        {
+          "month": "Oct-26",
+          "avgprice": 0,
+          "monthtext": "Oct",
+          "mouseovertxt": "avg rent for Oct 2026 $0",
+          "year": 2026
+        },
+        {
+          "month": "Nov-26",
+          "avgprice": 0,
+          "monthtext": "Nov",
+          "mouseovertxt": "avg rent for Nov 2026 $0",
+          "year": 2026
+        },
+        {
+          "month": "Dec-26",
+          "avgprice": 0,
+          "monthtext": "Dec",
+          "mouseovertxt": "avg rent for Dec 2026 $0",
+          "year": 2026
+        }
+      ]
+    }
+  },
+  "description": {
+    "fullDescription": "1bedroom 1bath available and ready to move in!!\nRent: $1900\nLocation: wayne street/mercer street jersey city nj\nNo Broker fee!!\nSAFE&CLEAN Neighborhood\nDowntown Jersey City\nCOMPLETE Apartment including all utilities and Semi furnished (includes futon,desk,rug, table,office chair, Microwave, refrigerator)\nUTILITIES included: gas,water, electric, heat/ac\nVery spacious\nThis unit features open living space\nConvenient location\nStainless steel appliances\nGood for couples/singles and small family\nFor rent by owner!\n\nAVAILABLE FROM\n05 Jun 2026\nACCOMODATES\n3\nPOSTED BY\nFatima\nROOM TYPE\nApartment\nEXPECTED RENT\nContact for price\nBEDROOMS\n1 Bed\nBATHROOMS\n1 Bath\nAREA\n1100 sqft\nSTAY TYPE\nLong Term(6+ months)\nACCOMODATION TYPE\nFurnished Apartment\nDEPOSIT\n$1,900\nCOUPLES ALLOWED\nYes",
+    "extraNotes": "not_found",
+    "specialInstructions": "not_found"
+  },
+  "availability": {
+    "availableFrom": "not_found",
+    "availableTo": "not_found",
+    "stayType": "not_found",
+    "daysAvailable": "not_found",
+    "shortTermAllowed": "not_found",
+    "longTermAllowed": "not_found"
+  },
+  "location": {
+    "fullAddress": "Jersey City, NJ, USA, 07302Jersey City, NJHudson CountyUniversity nearby:1.09 mi. from Christ Hospital",
+    "city": "not_found",
+    "state": "not_found",
+    "stateCode": "not_found",
+    "country": "not_found",
+    "countryCode": "not_found",
+    "district": "not_found",
+    "locality": "not_found",
+    "metroArea": "not_found",
+    "subLocality": "not_found",
+    "zipCode": "not_found",
+    "displayAddress": "not_found",
+    "formattedAddress": "not_found",
+    "latitude": "not_found",
+    "longitude": "not_found",
+    "mapVisibility": "not_found",
+    "neighborhoods": "not_found",
+    "nearbyLandmarks": "not_found",
+    "_rawLocationObject": {}
+  },
+  "photos": {
+    "count": 9,
+    "items": [
+      {
+        "index": 0,
+        "url": "https://usimg.sulekha.io/cdn/staticmap/homepage/hicksville-ny.png",
+        "alt": "Sample",
+        "metadata": "not_found"
+      },
+      {
+        "index": 1,
+        "url": "https://usimg.sulekha.io/cdn/roommates/images/apartments_2026-05-21-06-12-03-902_0.jpg",
+        "alt": "Sample",
+        "metadata": "not_found"
+      },
+      {
+        "index": 2,
+        "url": "https://usimg.sulekha.io/cdn/roommates/images/apartments_2026-05-14-04-21-44-958_0.jpg",
+        "alt": "Sample",
+        "metadata": "not_found"
+      },
+      {
+        "index": 3,
+        "url": "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-05-03-12-24-50-704_11825587.jpeg",
+        "alt": "Sample",
+        "metadata": "not_found"
+      },
+      {
+        "index": 4,
+        "url": "https://usimg.sulekha.io/cdn/staticmap/homepage/hicksville-ny.png",
+        "alt": "Sample",
+        "metadata": "not_found"
+      },
+      {
+        "index": 5,
+        "url": "https://usimg.sulekha.io/cdn/staticmap/homepage/hicksville-ny.png",
+        "alt": "Sample",
+        "metadata": "not_found"
+      },
+      {
+        "index": 6,
+        "url": "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-06-11-04-45-22-643_11851099.jpeg",
+        "alt": "Sample",
+        "metadata": "not_found"
+      },
+      {
+        "index": 7,
+        "url": "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-06-11-04-45-22-643_11851099.jpeg",
+        "alt": "Sample",
+        "metadata": "not_found"
+      },
+      {
+        "index": 8,
+        "url": "https://d3aew4oo17ml6.cloudfront.net/common/images/sulekha-logo-200x200.png",
+        "alt": "not_found",
+        "metadata": "not_found"
+      }
+    ]
+  },
+  "amenities": {
+    "ad_typeproperty_offered": true,
+    "propertyapartment": true,
+    "bedrooms1_beds": true,
+    "available_from05_jun_2026": true,
+    "area1100_sqft": true,
+    "private_lawn": true,
+    "no_smoking_veg/non-veg_no_petssemi_furnished": true,
+    "phone_verifiedmail_verified": true
+  },
+  "preferences": {
+    "preferredGender": "not_found",
+    "pets": "not_found",
+    "smoking": "not_found",
+    "vegetarian": "not_found",
+    "alcoholAllowed": "not_found",
+    "couplesWelcome": "not_found",
+    "ageRange": "not_found",
+    "occupation": "not_found",
+    "languages": "not_found",
+    "_raw": {}
+  },
+  "poster": {
+    "displayName": "Fatima",
+    "email": "not_found",
+    "phone": "not_found",
+    "role": "not_found",
+    "uid": "not_found",
+    "business": "not_found",
+    "verificationStatus": "not_found",
+    "profilePhoto": "not_found",
+    "memberSince": "not_found",
+    "_raw": {}
+  },
+  "payment": {
+    "paymentId": "not_found",
+    "orderId": "not_found",
+    "planId": "not_found",
+    "planName": "not_found",
+    "paidAmount": "not_found",
+    "paidAt": "not_found",
+    "paymentMethod": "not_found",
+    "promoCode": "not_found",
+    "durationDays": "not_found",
+    "_raw": {}
+  },
+  "metadata": {
+    "adActiveDate": "not_found",
+    "adExpiryDate": "not_found",
+    "adExpiryStatus": "not_found",
+    "category": "not_found",
+    "intent": "rent",
+    "status": "not_found",
+    "createdAt": "not_found",
+    "updatedAt": "not_found",
+    "timezone": "not_found",
+    "pageUrl": "https://indianroommates.sulekha.com/1bedroom1bath-apartment-includes-all-utilities-close-to-downtown-jersey-city-and-grove-st-ready-to-move-in_rentals_jersey-city-nj_1565512",
+    "ogTitle": "1bedroom1bath Apartment  Includes All Utilities!!! Close To Downtown Jersey City And Grove St Ready To Move In! in Jersey City, NJ 07302 | 1 BHK Apartments and Flats | 1565512 - Sulekha Rentals",
+    "ogDescription": "1bedroom 1bath available and ready to move in!!Rent: $1900Location:  wayne street/mercer street jersey city njNo Broker fee!! SAFE&CLEAN Neighborhood Downtown J, offered 1 BHK Apartments and Flats are available in Jersey City, NJ 07302 on Sulekha.",
+    "ogImage": "https://d3aew4oo17ml6.cloudfront.net/common/images/sulekha-logo-200x200.png",
+    "canonicalUrl": "not_found"
+  },
+  "privacy": {
+    "hidePhone": "not_found",
+    "hideEmail": "not_found",
+    "hideAddress": "not_found",
+    "whatsappEnabled": "not_found",
+    "mapVisibility": "not_found",
+    "_raw": {}
+  },
+  "structuredData": [
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Sulekha NRI",
+      "operatingSystem": "iOS, Android",
+      "applicationCategory": "BusinessApplication",
+      "description": "Sulekha NRI connects Indians in the US with local service providers for home services, education, events, and more.",
+      "url": "https://us.sulekha.com/",
+      "publisher": {
+        "@type": "Organization",
+        "name": "Sulekha US LLC",
+        "url": "https://us.sulekha.com/"
+      },
+      "creator": {
+        "@type": "Organization",
+        "name": "Sulekha US LLC",
+        "url": "https://us.sulekha.com/"
+      },
+      "downloadUrl": [
+        "https://apps.apple.com/us/app/sulekha-us-canada/id483101010",
+        "https://play.google.com/store/apps/details?id=com.nriapp"
+      ],
+      "installUrl": [
+        "https://apps.apple.com/us/app/sulekha-us-canada/id483101010",
+        "https://play.google.com/store/apps/details?id=com.nriapp"
+      ],
+      "screenshot": [
+        "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource116/v4/fc/78/96/fc7896f6-e4fe-6717-eaf5-aa91b1f0e27b/73f48688-dd3b-4a9e-bc08-a3dc82c3a8f3_1242x2688.png/230x0w.webp",
+        "https://play-lh.googleusercontent.com/cORJs_ZZ1f8ORapHq7uRtx2jGzTbTPWPV7ad1suLgfSd55eHNQ09F9govLqwEkgkZjI=w2560-h1440-rw"
+      ],
+      "sameAs": [
+        "https://apps.apple.com/app/sulekha-nri/id483101010",
+        "https://play.google.com/store/apps/details?id=com.nriapp"
+      ]
+    }
+  ],
+  "capturedApiEndpoints": [
+    "https://indianroommates.sulekha.com/common/commonv4.aspx?type=mtlinechart&adtype=1&cityurl=jersey-city-nj&roomtype=2&beds=&cityormetro=city&service=&_=1781956949546",
+    "https://securepubads.g.doubleclick.net/gampad/ads?pvsid=4061661573581873&correlator=1775914533625403&output=ldjh&gdfp_req=1&vrg=202606150101&ptt=17&impl=fifs&iu_parts=1011382%2CUS_Room_300x250_SR2%2CUS_Room_AdSense_160x600%2CUS_Room_AdSense_300x250_1%2CUS_Room_AdSense_300x250_2%2CUS_Room_All_BTF_300x250%2CUS_Room_ATF_LB_728x90%2CUS_Room_BTF_LB_728x90%2CUS_Roomates_All_WS_160x600%2CUS_Roomates_HP_SR1_300x250%2CUS_Roomates_HP_SR2_300x250%2CUS_Room_ROS_300x250_SR1%2CUS_Room_ROS_300x250_SR2%2CRentals_internal_300x100%2CRoommates_internal_300x100%2CUSLocalJobs_All_ATF_PU_550x480%2C1US_Room_BTF_LB_728x90_New%2CUS_ROOM_ROS_728x90%2CUS_HP_300x100%2CNew_Mobile_300x100%2CStatefarm_ATF_728x90%2CSticker_AD_ALL_728x90%2C72890%2CIndianRoomates_1x1&enc_prev_ius=%2F0%2F1%2C%2F0%2F2%2C%2F0%2F3%2C%2F0%2F4%2C%2F0%2F5%2C%2F0%2F6%2C%2F0%2F7%2C%2F0%2F8%2C%2F0%2F9%2C%2F0%2F10%2C%2F0%2F11%2C%2F0%2F12%2C%2F0%2F13%2C%2F0%2F14%2C%2F0%2F15%2C%2F0%2F16%2C%2F0%2F17%2C%2F0%2F18%2C%2F0%2F19%2C%2F0%2F20%2C%2F0%2F21%2C%2F0%2F22%2C%2F0%2F23&prev_iu_szs=300x250%2C160x600%2C300x250%2C300x250%2C300x250%2C728x90%2C728x90%2C160x600%2C300x250%2C300x250%2C300x250%2C300x250%2C300x100%2C300x100%2C550x480%2C728x90%2C728x90%2C300x100%2C300x100%2C728x90%2C728x90%2C728x90%2C1x1&ifi=1&didk=3213826925~3213826924~3213826927~3213826926~3213826897~3213826896~3213826899~3213826898~3213826901~3213826900~3340319047~3340319040~2719302737~2719302738~979213442~2872381379~415246889~191764275~2457442101~4265232553~2314601788~3681725270~1883483577&dids=div-gpt-ad-1383206898532-0~div-gpt-ad-1383206898532-1~div-gpt-ad-1383206898532-2~div-gpt-ad-1383206898532-3~div-gpt-ad-1383206898532-4~div-gpt-ad-1383206898532-5~div-gpt-ad-1383206898532-6~div-gpt-ad-1383206898532-7~div-gpt-ad-1383206898532-8~div-gpt-ad-1383206898532-9~div-gpt-ad-1383211233604-0~div-gpt-ad-1383211233604-1~div-gpt-ad-1458121030222-4~div-gpt-ad-1458121030222-5~div-gpt-ad-1507894067796-0~div-gpt-ad-1531226503916-0~div-gpt-ad-1534854757932-0~div-gpt-ad-1536592292128-0~div-gpt-ad-1572874113457-0~div-gpt-ad-1571720327497-0~div-gpt-ad-1598877067657-0~div-gpt-ad-1601485822881-0~div-gpt-ad-1607927819922-0&adfs=~~~~~~~~~~3415986096~3743323681~~~2820333182~~~~~~~~2541989103&sfv=1-0-45&sc=1&cookie_enabled=1&abxe=1&dt=1781956956599&lmt=1781956956&adxs=-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C1065%2C1065%2C-9%2C-9%2C525%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C0&adys=-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C2283%2C3036%2C-9%2C-9%2C9270%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C9259&biw=1600&bih=900&scr_x=0&scr_y=0&btvi=-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C1%7C2%7C-1%7C-1%7C3%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C4&ucis=1%7C2%7C3%7C4%7C5%7C6%7C7%7C8%7C9%7Ca%7Cb%7Cc%7Cd%7Ce%7Cf%7Cg%7Ch%7Ci%7Cj%7Ck%7Cl%7Cm%7Cn&oid=2&u_his=3&u_h=768&u_w=1366&u_ah=728&u_aw=1366&u_cd=32&u_sd=1&dmc=1&bc=31&nvt=1&uach=WyIiLCIxOS4wLjAiLCJ4ODYiLCIiLCIxNDUuMC43NjMyLjc3IixudWxsLDAsbnVsbCwiNjQiLFtbIk5vdDpBLUJyYW5kIiwiOTkuMC4wLjAiXSxbIkdvb2dsZSBDaHJvbWUiLCIxNDUuMC43NjMyLjc3Il0sWyJDaHJvbWl1bSIsIjE0NS4wLjc2MzIuNzciXV0sMF0.&url=https%3A%2F%2Findianroommates.sulekha.com%2F1bedroom1bath-apartment-includes-all-utilities-close-to-downtown-jersey-city-and-grove-st-ready-to-move-in_rentals_jersey-city-nj_1565512&ref=https%3A%2F%2Findianroommates.sulekha.com%2F&vis=1&psz=0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C470x30%7C470x30%7C0x-1%7C0x-1%7C1600x0%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C1600x9154&msz=0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C470x0%7C470x0%7C0x-1%7C0x-1%7C550x0%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C1x-1&fws=2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C0%2C0%2C2%2C2%2C128%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C0&ohw=0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0&dlt=1781956949062&idt=6954&cust_params=Cities%3DEWR&adks=208718468%2C3758895301%2C1299115806%2C3591137220%2C2827600693%2C3528599357%2C3323261861%2C2643088000%2C3343669732%2C946422004%2C3133840461%2C1221742574%2C2210292867%2C700891221%2C2247923909%2C3944167831%2C2378542518%2C3521060652%2C2674309994%2C2406342176%2C4017110783%2C3302928429%2C4248192311&frm=20&eoidce=1",
+    "https://us.sulekha.com/common/objprocess.aspx?type=popnearby&nearbyckusrcity=New%20York&nearbyckusrcountry=US&nearbycklat=40.7143&nearbycklong=-74.0067&callback=fnhfpopnearbycallbk"
+  ],
+  "_rawData": {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "Sulekha NRI",
+    "operatingSystem": "iOS, Android",
+    "applicationCategory": "BusinessApplication",
+    "description": "Sulekha NRI connects Indians in the US with local service providers for home services, education, events, and more.",
+    "url": "https://us.sulekha.com/",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Sulekha US LLC",
+      "url": "https://us.sulekha.com/"
+    },
+    "creator": {
+      "@type": "Organization",
+      "name": "Sulekha US LLC",
+      "url": "https://us.sulekha.com/"
+    },
+    "downloadUrl": [
+      "https://apps.apple.com/us/app/sulekha-us-canada/id483101010",
+      "https://play.google.com/store/apps/details?id=com.nriapp"
+    ],
+    "installUrl": [
+      "https://apps.apple.com/us/app/sulekha-us-canada/id483101010",
+      "https://play.google.com/store/apps/details?id=com.nriapp"
+    ],
+    "screenshot": [
+      "https://is1-ssl.mzstatic.com/image/thumb/PurpleSource116/v4/fc/78/96/fc7896f6-e4fe-6717-eaf5-aa91b1f0e27b/73f48688-dd3b-4a9e-bc08-a3dc82c3a8f3_1242x2688.png/230x0w.webp",
+      "https://play-lh.googleusercontent.com/cORJs_ZZ1f8ORapHq7uRtx2jGzTbTPWPV7ad1suLgfSd55eHNQ09F9govLqwEkgkZjI=w2560-h1440-rw"
+    ],
+    "sameAs": [
+      "https://apps.apple.com/app/sulekha-nri/id483101010",
+      "https://play.google.com/store/apps/details?id=com.nriapp"
+    ],
+    "ROW_MARKET_TRENDS_LINECHART": [
+      {
+        "month": "Jan-25",
+        "avgprice": 2430,
+        "monthtext": "Jan",
+        "mouseovertxt": "avg rent for Jan 2025 $2430",
+        "year": 2025
+      },
+      {
+        "month": "Feb-25",
+        "avgprice": 2224,
+        "monthtext": "Feb",
+        "mouseovertxt": "avg rent for Feb 2025 $2224",
+        "year": 2025
+      },
+      {
+        "month": "Mar-25",
+        "avgprice": 2208,
+        "monthtext": "Mar",
+        "mouseovertxt": "avg rent for Mar 2025 $2208",
+        "year": 2025
+      },
+      {
+        "month": "Apr-25",
+        "avgprice": 2356,
+        "monthtext": "Apr",
+        "mouseovertxt": "avg rent for Apr 2025 $2356",
+        "year": 2025
+      },
+      {
+        "month": "May-25",
+        "avgprice": 2282,
+        "monthtext": "May",
+        "mouseovertxt": "avg rent for May 2025 $2282",
+        "year": 2025
+      },
+      {
+        "month": "Jun-25",
+        "avgprice": 2457,
+        "monthtext": "Jun",
+        "mouseovertxt": "avg rent for Jun 2025 $2457",
+        "year": 2025
+      },
+      {
+        "month": "Jul-25",
+        "avgprice": 2458,
+        "monthtext": "Jul",
+        "mouseovertxt": "avg rent for Jul 2025 $2458",
+        "year": 2025
+      },
+      {
+        "month": "Aug-25",
+        "avgprice": 2473,
+        "monthtext": "Aug",
+        "mouseovertxt": "avg rent for Aug 2025 $2473",
+        "year": 2025
+      },
+      {
+        "month": "Sep-25",
+        "avgprice": 2454,
+        "monthtext": "Sep",
+        "mouseovertxt": "avg rent for Sep 2025 $2454",
+        "year": 2025
+      },
+      {
+        "month": "Oct-25",
+        "avgprice": 2352,
+        "monthtext": "Oct",
+        "mouseovertxt": "avg rent for Oct 2025 $2352",
+        "year": 2025
+      },
+      {
+        "month": "Nov-25",
+        "avgprice": 2319,
+        "monthtext": "Nov",
+        "mouseovertxt": "avg rent for Nov 2025 $2319",
+        "year": 2025
+      },
+      {
+        "month": "Dec-25",
+        "avgprice": 2471,
+        "monthtext": "Dec",
+        "mouseovertxt": "avg rent for Dec 2025 $2471",
+        "year": 2025
+      },
+      {
+        "month": "Jan-26",
+        "avgprice": 1899,
+        "monthtext": "Jan",
+        "mouseovertxt": "avg rent for Jan 2026 $1899",
+        "year": 2026
+      },
+      {
+        "month": "Feb-26",
+        "avgprice": 2498,
+        "monthtext": "Feb",
+        "mouseovertxt": "avg rent for Feb 2026 $2498",
+        "year": 2026
+      },
+      {
+        "month": "Mar-26",
+        "avgprice": 2511,
+        "monthtext": "Mar",
+        "mouseovertxt": "avg rent for Mar 2026 $2511",
+        "year": 2026
+      },
+      {
+        "month": "Apr-26",
+        "avgprice": 2182,
+        "monthtext": "Apr",
+        "mouseovertxt": "avg rent for Apr 2026 $2182",
+        "year": 2026
+      },
+      {
+        "month": "May-26",
+        "avgprice": 2200,
+        "monthtext": "May",
+        "mouseovertxt": "avg rent for May 2026 $2200",
+        "year": 2026
+      },
+      {
+        "month": "Jun-26",
+        "avgprice": 2106,
+        "monthtext": "Jun",
+        "mouseovertxt": "avg rent for Jun 2026 $2106",
+        "year": 2026
+      },
+      {
+        "month": "Jul-26",
+        "avgprice": 0,
+        "monthtext": "Jul",
+        "mouseovertxt": "avg rent for Jul 2026 $0",
+        "year": 2026
+      },
+      {
+        "month": "Aug-26",
+        "avgprice": 0,
+        "monthtext": "Aug",
+        "mouseovertxt": "avg rent for Aug 2026 $0",
+        "year": 2026
+      },
+      {
+        "month": "Sep-26",
+        "avgprice": 0,
+        "monthtext": "Sep",
+        "mouseovertxt": "avg rent for Sep 2026 $0",
+        "year": 2026
+      },
+      {
+        "month": "Oct-26",
+        "avgprice": 0,
+        "monthtext": "Oct",
+        "mouseovertxt": "avg rent for Oct 2026 $0",
+        "year": 2026
+      },
+      {
+        "month": "Nov-26",
+        "avgprice": 0,
+        "monthtext": "Nov",
+        "mouseovertxt": "avg rent for Nov 2026 $0",
+        "year": 2026
+      },
+      {
+        "month": "Dec-26",
+        "avgprice": 0,
+        "monthtext": "Dec",
+        "mouseovertxt": "avg rent for Dec 2026 $0",
+        "year": 2026
+      }
+    ]
+  },
+  "SCRAPPED_AD_DETAILS": {
+    "adId": "1565512",
+    "sourceUrl": "https://indianroommates.sulekha.com/1bedroom1bath-apartment-includes-all-utilities-close-to-downtown-jersey-city-and-grove-st-ready-to-move-in_rentals_jersey-city-nj_1565512",
+    "title": "1bedroom1bath Apartment Includes All Utilities!!! Close To Downtown Jersey City And Grove St Ready To Move In!",
+    "breadcrumb": [
+      "Indian Roommates",
+      "Rentals in New Jersey Area",
+      "Rentals in Jersey City",
+      "1bedroom1bath Apartment Includes All Utilities!!! Close To Downtown Jersey City And Grove St Ready To Move In!"
+    ],
+    "adType": "Property Offered",
+    "propertyCategory": "Apartment",
+    "bedrooms": "Contact Advertiser\nYour Name*\nYour Email Address*\nContact Number*\nUSA(+1)\nCA(+1)\nIN(+91)\nAvailable From (Optional)\nDescription*\nEnter Captcha*\nContact Property\nBy sending, you agree to Sulekha's Terms of Use & Privacy Policy.\n\nBeware of rental scams! Situations involving wire transfers or a landlord who is traveling and can't meet you in person can be red flags.Read more.\n\nRental Types in Jersey City, NJ\nApartments for Rent\nCondos for Rent\nTown Houses for Rent\nSingle Family Homes for Rent\nHomes for Rent\nHouses for Rent\nHostels for Rent\nHotels for Rent\nBasement Apartments for Rent\nRental Properties in nearby Neighborhoods\nRental Properties in Ridgewood, Ontario\nRental Properties in Alphabet City, New York\nRental Properties in Arrochar, New York\nRental Properties in Astoria Heights, New York\nRental Properties in Bath Beach, New York\nRoommates in Jersey City, NJ\nNewport High Floor, Furnished Independent Room\nSingleSeparate BathMale$950/ Month\n Jersey City, NJ\nContact Now\nPrivate Furnished Bedroom With Attached Bath Available To Rent Close To Journal Square Path Station\nSingleSeparate BathMale/Female$1100/ Month\n Jersey City, NJ\nContact Now\nFully Furnished Private Room Available For Rent In Jersey City, Walkable To Path\nSingleSeparate BathMale/Female$850/ Month\n Jersey City, NJ\nContact Now\nFully Furnished Private Bedroom With Attached Bath Available To Rent Close To Journal Square Path Station\nSingleSeparate BathMale/Female$1100/ Month\n Jersey City, NJ\nContact Now\nRooms in Jersey City, NJ \nAgents in New Jersey Area\nK\nKamal Js Condle\nAgent with Real Estate Broker and Mortgage Originator\n Edison, NJ\n 7326894179\nView MoreRespond\nM\nMonthtomonth\nAgent with silver planet business usa\n Jersey City, NJ\n 5515801792\nView MoreRespond\nY\nYousaf Qureshi\nAgent with Keller williams\n Englishtown, NJ\n 3474709687\nView MoreRespond\nView More Agents in New Jersey Area \nprev\nnext\nOther Related Roommates Links\nApartments for rent below $300 in Jersey City\nApartments for rent between $300 and $500 in Jersey City\nApartments for rent between $500 and $1000 in Jersey City\nApartments for rent above $1000 in Jersey City\nHousing Corner\nRooms for Rent in the Washington Metro Area - Find the Right Indian Roommate Faster\n\nRooms for Rent in the Washington Metro Area - Find the Right Indian Roommate Faster The Washington Metro Area moves fast because it is a true ..Read more »\n\nRooms for Rent in Seattle Metro Area - Find the Right Indian Roommate Faster\n\nRooms for Rent in the Seattle Metro Area: Find the Right Indian Roommate Faster Seattle Metro is a fast-moving rental region because it combin..Read more »\n\nRooms for Rent and Indian Roommates in Indianapolis Metro Area\n\nRooms for Rent and Indian Roommates in the Indianapolis Metro AreaRead more »\n\nView more Housing Corner \nDiscover more\nClassifieds\nDemographics\nResidential Rentals\nrental\nCity & Local Guides\nReal Estate\nJob Listings\nGeographic Reference",
+    "bathrooms": "1 Bath",
+    "areaSqft": "1191...9501100850110073268941795515801792347470968730030050050010001000....",
+    "availableFrom": "Contact Advertiser\nYour Name*\nYour Email Address*\nContact Number*\nUSA(+1)\nCA(+1)\nIN(+91)\nAvailable From (Optional)\nDescription*\nEnter Captcha*\nContact Property\nBy sending, you agree to Sulekha's Terms of Use & Privacy Policy.\n\nBeware of rental scams! Situations involving wire transfers or a landlord who is traveling and can't meet you in person can be red flags.Read more.\n\nRental Types in Jersey City, NJ\nApartments for Rent\nCondos for Rent\nTown Houses for Rent\nSingle Family Homes for Rent\nHomes for Rent\nHouses for Rent\nHostels for Rent\nHotels for Rent\nBasement Apartments for Rent\nRental Properties in nearby Neighborhoods\nRental Properties in Ridgewood, Ontario\nRental Properties in Alphabet City, New York\nRental Properties in Arrochar, New York\nRental Properties in Astoria Heights, New York\nRental Properties in Bath Beach, New York\nRoommates in Jersey City, NJ\nNewport High Floor, Furnished Independent Room\nSingleSeparate BathMale$950/ Month\n Jersey City, NJ\nContact Now\nPrivate Furnished Bedroom With Attached Bath Available To Rent Close To Journal Square Path Station\nSingleSeparate BathMale/Female$1100/ Month\n Jersey City, NJ\nContact Now\nFully Furnished Private Room Available For Rent In Jersey City, Walkable To Path\nSingleSeparate BathMale/Female$850/ Month\n Jersey City, NJ\nContact Now\nFully Furnished Private Bedroom With Attached Bath Available To Rent Close To Journal Square Path Station\nSingleSeparate BathMale/Female$1100/ Month\n Jersey City, NJ\nContact Now\nRooms in Jersey City, NJ \nAgents in New Jersey Area\nK\nKamal Js Condle\nAgent with Real Estate Broker and Mortgage Originator\n Edison, NJ\n 7326894179\nView MoreRespond\nM\nMonthtomonth\nAgent with silver planet business usa\n Jersey City, NJ\n 5515801792\nView MoreRespond\nY\nYousaf Qureshi\nAgent with Keller williams\n Englishtown, NJ\n 3474709687\nView MoreRespond\nView More Agents in New Jersey Area \nprev\nnext\nOther Related Roommates Links\nApartments for rent below $300 in Jersey City\nApartments for rent between $300 and $500 in Jersey City\nApartments for rent between $500 and $1000 in Jersey City\nApartments for rent above $1000 in Jersey City\nHousing Corner\nRooms for Rent in the Washington Metro Area - Find the Right Indian Roommate Faster\n\nRooms for Rent in the Washington Metro Area - Find the Right Indian Roommate Faster The Washington Metro Area moves fast because it is a true ..Read more »\n\nRooms for Rent in Seattle Metro Area - Find the Right Indian Roommate Faster\n\nRooms for Rent in the Seattle Metro Area: Find the Right Indian Roommate Faster Seattle Metro is a fast-moving rental region because it combin..Read more »\n\nRooms for Rent and Indian Roommates in Indianapolis Metro Area\n\nRooms for Rent and Indian Roommates in the Indianapolis Metro AreaRead more »\n\nView more Housing Corner \nDiscover more\nClassifieds\nDemographics\nResidential Rentals\nrental\nCity & Local Guides\nReal Estate\nJob Listings\nGeographic Reference",
+    "rent": "Contact for price",
+    "rentCurrency": "USD",
+    "deposit": "1,900",
+    "accommodates": null,
+    "roomType": "Apartment",
+    "stayType": "Long Term(6+ months)",
+    "accommodationType": null,
+    "couplesAllowed": "Yes",
+    "postedBy": "Fatima",
+    "postedOn": "Jun 05, 2026",
+    "adIdOnSite": "1565512",
+    "description": "1bedroom 1bath available and ready to move in!!\nRent: $1900\nLocation: wayne street/mercer street jersey city nj\nNo Broker fee!!\nSAFE&CLEAN Neighborhood\nDowntown Jersey City\nCOMPLETE Apartment including all utilities and Semi furnished (includes futon,desk,rug, table,office chair, Microwave, refrigerator)\nUTILITIES included: gas,water, electric, heat/ac\nVery spacious\nThis unit features open living space\nConvenient location\nStainless steel appliances\nGood for couples/singles and small family\nFor rent by owner!\n\nAVAILABLE FROM\n05 Jun 2026\nACCOMODATES\n3\nPOSTED BY\nFatima\nROOM TYPE\nApartment\nEXPECTED RENT\nContact for price\nBEDROOMS\n1 Bed\nBATHROOMS\n1 Bath\nAREA\n1100 sqft\nSTAY TYPE\nLong Term(6+ months)\nACCOMODATION TYPE\nFurnished Apartment\nDEPOSIT\n$1,900\nCOUPLES ALLOWED\nYes",
+    "address": {
+      "fullAddress": "Jersey City, NJ, USA, 07302Jersey City, NJHudson CountyUniversity nearby:1.09 mi. from Christ Hospital",
+      "city": "Jersey City",
+      "state": "NJ",
+      "zipcode": null,
+      "county": "NJHudson County",
+      "nearbyUniversity": "1.09 mi. from Christ Hospital",
+      "nearbyNeighborhoods": [
+        "Meatpacking District",
+        "Downtown Jersey City",
+        "McGinley Square"
+      ]
+    },
+    "amenities": [
+      "Private Lawn"
+    ],
+    "utilities": [
+      "Water",
+      "Electricity",
+      "Room Heater",
+      "Air Conditioner",
+      "Refrigerator",
+      "Kitchen",
+      "Microwave"
+    ],
+    "additionalInfo": {
+      "smoking": "No Smoking",
+      "vegNonVeg": "Veg/Non-Veg",
+      "pets": "No Pets",
+      "furnishing": "Semi Furnished"
+    },
+    "tenantPreferences": {
+      "alcohol": "Alcohol Not allowed",
+      "occupation": "Don't mind/No preference",
+      "genderPreference": "Male/Female",
+      "ageRange": "18 to 99 (Any)"
+    },
+    "verifiedCredentials": [
+      "Phone Verified",
+      "Mail Verified"
+    ],
+    "photos": [
+      "https://d3aew4oo17ml6.cloudfront.net/common/images/sulekha-logo-200x200.png",
+      "https://usimg.sulekha.io/cdn/staticmap/homepage/hicksville-ny.png",
+      "https://usimg.sulekha.io/cdn/roommates/images/apartments_2026-05-21-06-12-03-902_0.jpg",
+      "https://usimg.sulekha.io/cdn/roommates/images/apartments_2026-05-14-04-21-44-958_0.jpg",
+      "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-05-03-12-24-50-704_11825587.jpeg",
+      "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-06-11-04-45-22-643_11851099.jpeg"
+    ],
+    "photoCount": 6,
+    "contactInfo": {
+      "phone": "201-305-9190",
+      "email": "us.sulekha@sulekha.com"
+    },
+    "scrapedAt": "2026-06-20T12:03:10.113Z"
+  }
+},
+
+
+
+
+
+]
