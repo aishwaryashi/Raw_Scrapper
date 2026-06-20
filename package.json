@@ -1,0 +1,34 @@
+{
+    "name": "raw-sulekha-rentals-scraper",
+    "version": "1.0.0",
+    "description": "Production-ready Apify Actor to scrape all rental listings from indianroommates.sulekha.com",
+    "type": "module",
+    "main": "src/main.js",
+    "scripts": {
+        "start": "node src/main.js",
+        "start:dev": "APIFY_IS_AT_HOME=0 node src/main.js",
+        "lint": "eslint src/"
+    },
+    "dependencies": {
+        "apify": "^3.2.2",
+        "crawlee": "^3.8.2",
+        "playwright": "^1.44.0",
+        "@crawlee/playwright": "^3.8.2",
+        "got-scraping": "^4.0.4",
+        "cheerio": "^1.0.0-rc.12",
+        "lodash": "^4.17.21",
+        "dayjs": "^1.11.11",
+        "p-limit": "^5.0.0",
+        "uuid": "^10.0.0"
+    },
+    "devDependencies": {
+        "eslint": "^8.57.0"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    },
+    "apify": {
+        "minMemoryMbytes": 1024,
+        "maxMemoryMbytes": 8192
+    }
+}

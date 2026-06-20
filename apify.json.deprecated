@@ -1,0 +1,20 @@
+{
+  "name": "raw-sulekha-rentals-scraper",
+  "version": "1.0.0",
+  "buildTag": "latest",
+  "env": {
+    "APIFY_DISABLE_OUTDATED_WARNING": "1"
+  },
+  "template": "playwright_javascript",
+  "dockerfileVersion": "playwright",
+  "isPublic": false,
+  "title": "Sulekha Indian Roommates Rentals Scraper",
+  "description": "Scrapes all rental/property advertisements from indianroommates.sulekha.com/rentals including full structured data, API payloads, metadata, photos, amenities, preferences, and poster details.",
+  "categories": ["REAL_ESTATE"],
+  "defaultRunOptions": {
+    "build": "latest",
+    "timeoutSecs": 86400,
+    "memoryMbytes": 4096
+  },
+  "inputSchema": "./input_schema.json"
+}
