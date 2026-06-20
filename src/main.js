@@ -28,6 +28,8 @@ import {
   markSeen,
   extractAdIdFromUrl,
   truncate,
+  loadSeenAdIds,
+  getSeenAdIds,
 } from './helpers.js';
 import { buildRouter } from './routes.js';
 
@@ -129,7 +131,7 @@ const crawler = new PlaywrightCrawler({
   maxConcurrency: inputConfig.maxConcurrency,
   maxRequestRetries: inputConfig.maxRequestRetries,
   requestHandlerTimeoutSecs: inputConfig.requestTimeoutSecs,
-  navigationTimeoutSecs: 60,
+  navigationTimeoutSecs: 120,
   browserPoolOptions: {
     useFingerprints: true,  // Crawlee built-in fingerprint injection
     fingerprintOptions: {
@@ -148,10 +150,15 @@ const crawler = new PlaywrightCrawler({
 
   // ── Pre-navigation hook: randomize context ──────────────────────────────────
   preNavigationHooks: [
-    async (crawlingContext) => {
+    async (crawlingContext, gotoOptions) => {
       const { page, request } = crawlingContext;
       const ua = randomUserAgent();
       const viewport = randomViewport();
+
+      // Use domcontentloaded instead of 'load' so navigation completes as soon as
+      // the HTML is parsed — avoids 60s timeouts on pages with many slow resources.
+      gotoOptions.waitUntil = 'domcontentloaded';
+      gotoOptions.timeout = 120000;
 
       try {
         // Set viewport
@@ -240,6 +247,19 @@ const crawler = new PlaywrightCrawler({
 
 // ─── Run ─────────────────────────────────────────────────────────────────────
 
+// ─── Daily dedup: load seen ad IDs from previous runs ────────────────────────
+
+const KVS_SEEN_ADS_KEY = 'SEEN_AD_IDS';
+try {
+  const previouslySeen = await Actor.getValue(KVS_SEEN_ADS_KEY);
+  if (Array.isArray(previouslySeen) && previouslySeen.length) {
+    loadSeenAdIds(previouslySeen);
+    log.info(`Loaded ${previouslySeen.length} previously-seen ad IDs from KVS — those ads will be skipped.`);
+  }
+} catch (err) {
+  log.warning(`Could not load ${KVS_SEEN_ADS_KEY} from KVS: ${err.message}`);
+}
+
 log.info('Starting crawler…');
 
 try {
@@ -248,6 +268,14 @@ try {
   log.error(`Crawler run error: ${err.message}`);
 } finally {
   stats.printSummary();
+
+  // Persist seen ad IDs so the next daily run can skip already-scraped ads
+  try {
+    await Actor.setValue(KVS_SEEN_ADS_KEY, getSeenAdIds());
+    log.info(`Persisted ${getSeenAdIds().length} seen ad IDs to KVS key "${KVS_SEEN_ADS_KEY}".`);
+  } catch (err) {
+    log.warning(`Could not save ${KVS_SEEN_ADS_KEY} to KVS: ${err.message}`);
+  }
 
   // Save stats to key-value store
   await Actor.setValue('STATS', stats.summary());

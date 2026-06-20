@@ -412,3 +412,25 @@ export function isRejectedImageUrl(url, alt = '') {
   if (alt && REJECT_IMG_PATTERNS.test(alt)) return true;
   return false;
 }
+
+// ─── Daily dedup via KeyValueStore ───────────────────────────────────────────
+// Loaded from KVS before the crawl starts, persisted after it ends.
+// Ensures re-runs on subsequent days skip ads already saved to the dataset.
+
+const _seenAdIdsKvs = new Set();
+
+export function isSeenInKvs(adId) {
+  return !!adId && _seenAdIdsKvs.has(String(adId));
+}
+
+export function markSeenInKvs(adId) {
+  if (adId) _seenAdIdsKvs.add(String(adId));
+}
+
+export function loadSeenAdIds(ids = []) {
+  for (const id of ids) if (id) _seenAdIdsKvs.add(String(id));
+}
+
+export function getSeenAdIds() {
+  return [..._seenAdIdsKvs];
+}

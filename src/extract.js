@@ -1369,3 +1369,370 @@ export function extractListingPage(html, pageUrl) {
     totalCount,
   };
 }
+
+// ─── SCRAPPED_AD_DETAILS Extractor ──────────────────────────────────────────
+
+/**
+ * Extract a clean, flat SCRAPPED_AD_DETAILS object from the rendered detail page.
+ * All fields default to null / [] so the schema is always consistent.
+ *
+ * @param {Object} params
+ * @param {string}  params.url   - Full ad detail URL
+ * @param {string}  params.html  - Raw page HTML (already fetched in handleDetail)
+ * @param {Object}  [params.page]- Playwright page object for live DOM extraction
+ */
+export async function extractScrapedAdDetails({ url, html, page }) {
+  const adId = extractAdIdFromUrl(url);
+  const scrapedAt = new Date().toISOString();
+
+  const result = {
+    adId,
+    sourceUrl: url,
+    title: null,
+    breadcrumb: [],
+    adType: null,
+    propertyCategory: null,
+    bedrooms: null,
+    bathrooms: null,
+    areaSqft: null,
+    availableFrom: null,
+    rent: null,
+    rentCurrency: 'USD',
+    deposit: null,
+    accommodates: null,
+    roomType: null,
+    stayType: null,
+    accommodationType: null,
+    couplesAllowed: null,
+    postedBy: null,
+    postedOn: null,
+    adIdOnSite: adId,
+    description: null,
+    address: {
+      fullAddress: null,
+      city: null,
+      state: null,
+      zipcode: null,
+      county: null,
+      nearbyUniversity: null,
+      nearbyNeighborhoods: [],
+    },
+    amenities: [],
+    utilities: [],
+    additionalInfo: {
+      smoking: null,
+      vegNonVeg: null,
+      pets: null,
+      furnishing: null,
+    },
+    tenantPreferences: {
+      alcohol: null,
+      occupation: null,
+      genderPreference: null,
+      ageRange: null,
+    },
+    verifiedCredentials: [],
+    photos: [],
+    photoCount: 0,
+    contactInfo: {
+      phone: null,
+      email: null,
+    },
+    scrapedAt,
+  };
+
+  if (!page) {
+    log.warning('[SCRAPPED_AD_DETAILS] No Playwright page — returning base record.');
+    return result;
+  }
+
+  try {
+    const d = await page.evaluate(() => {
+      // ── DOM helpers ────────────────────────────────────────────────────────
+      const bodyText = document.body ? (document.body.innerText || document.body.textContent || '') : '';
+
+      const getText = (sel, root = document) => {
+        const el = root.querySelector(sel);
+        return el ? (el.innerText || el.textContent || '').trim() || null : null;
+      };
+
+      // ── Detail grid label → value extraction ──────────────────────────────
+      // Handles parent-child, sibling, and label/value class patterns.
+      const LABEL_MAP = {
+        'ad type': 'adType', 'property': 'propertyCategory',
+        'bedrooms': 'bedrooms', 'bathrooms': 'bathrooms',
+        'area': 'areaSqft', 'available from': 'availableFrom',
+        'expected rent': 'rent', 'rent': 'rent', 'price': 'rent',
+        'accommodates': 'accommodates', 'posted by': 'postedBy',
+        'room type': 'roomType', 'stay type': 'stayType',
+        'accommodation type': 'accommodationType',
+        'deposit': 'deposit', 'couples allowed': 'couplesAllowed',
+      };
+
+      const extractGrid = () => {
+        const pairs = {};
+        const candidates = [...document.querySelectorAll('span, p, div, label, td, th, dt, h5, h6, small')];
+        for (const el of candidates) {
+          const rawTxt = (el.innerText || el.textContent || '').trim();
+          if (!rawTxt || rawTxt.length > 60) continue;
+          const key = LABEL_MAP[rawTxt.toLowerCase().replace(/:$/, '').trim()];
+          if (!key || pairs[key]) continue;
+
+          let val = null;
+          // Strategy 1: direct next element sibling
+          const sib = el.nextElementSibling;
+          if (sib) {
+            const t = (sib.innerText || sib.textContent || '').trim();
+            if (t && t.length < 200 && !LABEL_MAP[t.toLowerCase()]) val = t;
+          }
+          // Strategy 2: parent cell → next cell
+          if (!val) {
+            const cell = el.closest('td, [class*="col"], [class*="cell"], [class*="field"], [class*="detail-item"]');
+            if (cell) {
+              const nextCell = cell.nextElementSibling;
+              if (nextCell) val = (nextCell.innerText || nextCell.textContent || '').trim() || null;
+            }
+          }
+          // Strategy 3: parent → next sibling
+          if (!val) {
+            const parent = el.parentElement;
+            const next = parent?.nextElementSibling;
+            if (next) {
+              const t = (next.innerText || next.textContent || '').trim();
+              if (t && t.length < 200 && !LABEL_MAP[t.toLowerCase()]) val = t;
+            }
+          }
+          if (val) pairs[key] = val;
+        }
+        return pairs;
+      };
+
+      // ── Section items extractor ────────────────────────────────────────────
+      // Finds a section by its heading text, returns array of item label strings.
+      const extractSection = (headingPattern) => {
+        const headings = [...document.querySelectorAll(
+          'h2, h3, h4, h5, b, strong, [class*="section-title"], [class*="section-heading"], [class*="heading"]'
+        )];
+        const heading = headings.find(h => {
+          const t = (h.innerText || h.textContent || '').trim();
+          return headingPattern.test(t) && t.length < 60;
+        });
+        if (!heading) return [];
+
+        let container = heading.nextElementSibling;
+        if (!container || container.children.length === 0) {
+          const parent = heading.parentElement;
+          container = parent?.nextElementSibling || parent;
+        }
+        if (!container) return [];
+
+        const seen = new Set();
+        const items = [];
+        const tryEls = container.querySelectorAll(
+          '[class*="item"], [class*="tag"], [class*="badge"], [class*="chip"], [class*="feature"], [class*="amenity"], li'
+        );
+        const src = tryEls.length > 0 ? [...tryEls] : [...container.children];
+        for (const el of src) {
+          const t = (el.innerText || el.textContent || '').trim();
+          if (t && t.length >= 2 && t.length <= 80 && !seen.has(t) && !headingPattern.test(t)) {
+            seen.add(t);
+            items.push(t);
+          }
+        }
+        return items;
+      };
+
+      // ── Title & Breadcrumb ────────────────────────────────────────────────
+      const title = getText('h1') || getText('[class*="ad-title"]') || getText('[class*="listing-title"]');
+
+      const breadcrumb = [...document.querySelectorAll(
+        '[class*="breadcrumb"] a, [class*="breadcrumb"] span, nav ol li a, nav ol li span, [aria-label="breadcrumb"] a'
+      )].map(el => (el.innerText || el.textContent || '').trim()).filter(Boolean);
+
+      // ── Detail grid ───────────────────────────────────────────────────────
+      const grid = extractGrid();
+
+      // ── Posted metadata line ──────────────────────────────────────────────
+      // "Posted on: Jun 05, 2026 | AD ID: 1565512 | Posted by: Fatima"
+      const postedOnMatch = bodyText.match(/Posted\s+on[:\s]+([A-Za-z]+\.?\s+\d{1,2},?\s*\d{4})/i);
+      const postedOn = postedOnMatch ? postedOnMatch[1].trim() : null;
+
+      const adIdOnSiteMatch = bodyText.match(/AD\s+ID[:\s#]+(\d+)/i);
+      const adIdOnSite = adIdOnSiteMatch ? adIdOnSiteMatch[1] : null;
+
+      const postedByTextMatch = bodyText.match(/Posted\s+by[:\s]+([^\n|<]{2,60}?)(?:\s*\||\n|$)/i);
+      const postedByFromText = postedByTextMatch ? postedByTextMatch[1].trim() : null;
+
+      // ── Address parsing ───────────────────────────────────────────────────
+      // Under the h1 title: "Jersey City, NJ, USA, 07302 | Hudson County | ..."
+      let fullAddress = null, city = null, state = null, zipcode = null,
+          county = null, nearbyUniversity = null;
+      const nearbyNeighborhoods = [];
+
+      const h1 = document.querySelector('h1');
+      if (h1) {
+        let sib = h1.nextElementSibling;
+        for (let i = 0; i < 5 && sib; i++) {
+          const t = (sib.innerText || sib.textContent || '').trim();
+          if (/^[A-Za-z\s]+,\s*[A-Z]{2}/.test(t)) {
+            fullAddress = t.split('|')[0].trim();
+            const csMatch = t.match(/^([^,]+),\s*([A-Z]{2})/);
+            if (csMatch) { city = csMatch[1].trim(); state = csMatch[2].trim(); }
+            const zipMatch = t.match(/\b(\d{5})\b/);
+            if (zipMatch) zipcode = zipMatch[1];
+            const countyMatch = t.match(/([A-Za-z ]+County)/i);
+            if (countyMatch) county = countyMatch[1].trim();
+            const uniMatch = t.match(/(?:University|College)[^:]*?(?:from|:)\s*([^|\n,]{3,60})/i);
+            if (uniMatch) nearbyUniversity = uniMatch[1].trim();
+            break;
+          }
+          sib = sib.nextElementSibling;
+        }
+      }
+      if (!fullAddress) fullAddress = getText('[itemprop="address"]') || getText('[class*="address"]');
+
+      // Nearby neighborhoods: from dedicated elements or a text pattern
+      [...document.querySelectorAll('[class*="neighborhood"] a, [class*="nearby-neighborhood"] a')].forEach(el => {
+        const t = (el.innerText || el.textContent || '').trim();
+        if (t && !nearbyNeighborhoods.includes(t)) nearbyNeighborhoods.push(t);
+      });
+      if (!nearbyNeighborhoods.length) {
+        const nbMatch = bodyText.match(/Nearby\s+Neighborhood[s]?[:\s]+([^\n]+)/i);
+        if (nbMatch) nearbyNeighborhoods.push(...nbMatch[1].split(/[,|]/).map(s => s.trim()).filter(Boolean));
+      }
+
+      // ── Overview / Description ────────────────────────────────────────────
+      let description = null;
+      for (const sel of [
+        '[class*="overview-content"]', '[class*="overview"] > p', '[class*="description-content"]',
+        '[class*="ad-description"]', '[class*="description"]', '[itemprop="description"]',
+      ]) {
+        const el = document.querySelector(sel);
+        if (el && (el.innerText || '').trim().length > 30) {
+          description = (el.innerText || el.textContent || '').trim(); break;
+        }
+      }
+      if (!description) {
+        const oh = [...document.querySelectorAll('h2, h3, h4')].find(h =>
+          /^overview$/i.test((h.innerText || h.textContent || '').trim())
+        );
+        if (oh?.nextElementSibling) description = (oh.nextElementSibling.innerText || '').trim() || null;
+      }
+
+      // ── Section arrays ────────────────────────────────────────────────────
+      const amenities = extractSection(/^amenities$/i);
+      const utilities = extractSection(/^utilities$/i);
+
+      const addInfoItems = extractSection(/^additional\s+info/i);
+      const additionalInfo = { smoking: null, vegNonVeg: null, pets: null, furnishing: null };
+      for (const t of addInfoItems) {
+        if (/smoking/i.test(t))               additionalInfo.smoking    = t;
+        else if (/veg/i.test(t))              additionalInfo.vegNonVeg  = t;
+        else if (/pet/i.test(t))              additionalInfo.pets       = t;
+        else if (/furnished|furnish/i.test(t)) additionalInfo.furnishing = t;
+      }
+
+      const prefItems = extractSection(/^tenant\s+pref/i);
+      const tenantPreferences = { alcohol: null, occupation: null, genderPreference: null, ageRange: null };
+      for (const t of prefItems) {
+        if (/alcohol/i.test(t))                          tenantPreferences.alcohol          = t;
+        else if (/occupation|mind|prefer|student/i.test(t)) tenantPreferences.occupation    = t;
+        else if (/male|female|any.*gender/i.test(t))     tenantPreferences.genderPreference = t;
+        else if (/\d+\s+to\s+\d+|age/i.test(t))         tenantPreferences.ageRange         = t;
+      }
+
+      const verifiedItems = extractSection(/^verified\s+credential/i);
+      const verifiedCredentials = verifiedItems.filter(t => /verified/i.test(t));
+      if (!verifiedCredentials.length) {
+        const vm = bodyText.match(/(?:Phone|Mail|Email|Identity|Address)\s+Verified/gi) || [];
+        verifiedCredentials.push(...[...new Set(vm)]);
+      }
+
+      // ── Photos from primary gallery only ──────────────────────────────────
+      const photos = [];
+      const seenUrls = new Set();
+      const excludedRoots = [...document.querySelectorAll(
+        '[class*="similar"], [class*="related"], [class*="explore"], [class*="nearby-listing"], [class*="browse"], [class*="recommend"], [class*="sponsor"]'
+      )];
+      const isExcluded = el => excludedRoots.some(r => r.contains(el));
+
+      for (const sel of [
+        '[class*="photo-gallery"]', '[class*="listing-photo"]', '[class*="property-photo"]',
+        '[class*="image-gallery"]', '[class*="gallery"]', '[class*="carousel"]', '[class*="swiper"]',
+      ]) {
+        const container = [...document.querySelectorAll(sel)].find(c => !isExcluded(c));
+        if (!container) continue;
+        let added = 0;
+        for (const img of container.querySelectorAll('img')) {
+          if (isExcluded(img)) continue;
+          const src = img.src || img.getAttribute('data-src') || img.getAttribute('data-lazy-src') || img.getAttribute('data-original') || '';
+          if (src && !src.startsWith('data:') && !seenUrls.has(src)) {
+            seenUrls.add(src); photos.push(src); added++;
+          }
+        }
+        for (const el of container.querySelectorAll('[style*="background-image"]')) {
+          if (isExcluded(el)) continue;
+          const m = (el.getAttribute('style') || '').match(/url\(['"]?([^'")\s]+)['"]?\)/);
+          if (m?.[1] && !m[1].startsWith('data:') && !seenUrls.has(m[1])) {
+            seenUrls.add(m[1]); photos.push(m[1]); added++;
+          }
+        }
+        if (added > 0) break;
+      }
+      // og:image as primary/fallback
+      const ogSrc = document.querySelector('meta[property="og:image"]')?.content;
+      if (ogSrc && !seenUrls.has(ogSrc)) { seenUrls.add(ogSrc); photos.unshift(ogSrc); }
+
+      // ── Contact info (site footer / header) ───────────────────────────────
+      const phoneMatch = bodyText.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
+      const emailMatch = bodyText.match(/[\w.+\-]+@[\w\-]+\.[a-z]{2,}/i);
+
+      return {
+        title, breadcrumb, grid, postedOn, adIdOnSite,
+        postedBy: grid.postedBy || postedByFromText,
+        description,
+        address: { fullAddress, city, state, zipcode, county, nearbyUniversity, nearbyNeighborhoods },
+        amenities, utilities, additionalInfo, tenantPreferences, verifiedCredentials, photos,
+        phone: phoneMatch?.[0] || null,
+        email: emailMatch?.[0] || null,
+      };
+    });
+
+    // ── Merge into result ─────────────────────────────────────────────────────
+    const g = d.grid || {};
+
+    result.title              = d.title;
+    result.breadcrumb         = d.breadcrumb;
+    result.adType             = g.adType             || null;
+    result.propertyCategory   = g.propertyCategory   || null;
+    result.bedrooms           = g.bedrooms            || null;
+    result.bathrooms          = g.bathrooms           || null;
+    result.areaSqft           = g.areaSqft ? g.areaSqft.replace(/[^\d.]/g, '') || g.areaSqft : null;
+    result.availableFrom      = g.availableFrom       || null;
+    result.rent               = g.rent               || null;
+    result.deposit            = g.deposit ? g.deposit.replace(/^\$/, '') : null;
+    result.accommodates       = g.accommodates        || null;
+    result.roomType           = g.roomType            || null;
+    result.stayType           = g.stayType            || null;
+    result.accommodationType  = g.accommodationType   || null;
+    result.couplesAllowed     = g.couplesAllowed      || null;
+    result.postedBy           = d.postedBy            || null;
+    result.postedOn           = d.postedOn            || null;
+    result.adIdOnSite         = d.adIdOnSite          || adId;
+    result.description        = d.description         || null;
+    result.address            = d.address;
+    result.amenities          = d.amenities;
+    result.utilities          = d.utilities;
+    result.additionalInfo     = d.additionalInfo;
+    result.tenantPreferences  = d.tenantPreferences;
+    result.verifiedCredentials = d.verifiedCredentials;
+    result.photos             = d.photos;
+    result.photoCount         = d.photos.length;
+    result.contactInfo        = { phone: d.phone, email: d.email };
+
+  } catch (err) {
+    log.warning(`[SCRAPPED_AD_DETAILS] Extraction error: ${err.message}`);
+  }
+
+  return result;
+}

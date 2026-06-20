@@ -19,8 +19,10 @@ import {
   extractAdIdFromUrl,
   buildPaginationUrl,
   truncate,
+  isSeenInKvs,
+  markSeenInKvs,
 } from './helpers.js';
-import { extractListingPage, extractDetailPage } from './extract.js';
+import { extractListingPage, extractDetailPage, extractScrapedAdDetails } from './extract.js';
 
 // ─── Network API capture helper ──────────────────────────────────────────────
 
@@ -189,6 +191,13 @@ export async function handleDetail(context, inputConfig, dataset) {
   log.info(`[DETAIL] Scraping: ${truncate(url, 100)}`);
   log.info(`[DETAIL] adsScraped=${stats.adsScraped}, adsFailed=${stats.adsFailed}, adsFound=${stats.adsFound}`);
 
+  // Daily dedup: skip ads already saved in a previous run
+  const adIdEarly = request.userData?.adId || extractAdIdFromUrl(url);
+  if (isSeenInKvs(adIdEarly)) {
+    log.info(`[DETAIL] Ad ${adIdEarly} already scraped in a previous run — skipping.`);
+    return;
+  }
+
   // Attach API interception before navigating
   let apiCapture = { captured: [], detach: () => {} };
   if (interceptApiCalls) {
@@ -199,10 +208,10 @@ export async function handleDetail(context, inputConfig, dataset) {
   await randomDelay(minDelayMs, maxDelayMs);
 
   try {
-    // Wait for main content
-    await page.waitForLoadState('networkidle', { timeout: 45000 }).catch(() =>
-      page.waitForLoadState('domcontentloaded', { timeout: 20000 }).catch(() => {})
-    );
+    // domcontentloaded is already guaranteed by gotoOptions.waitUntil in the
+    // pre-navigation hook. Wait briefly for network to settle, but don't block
+    // on networkidle — heavy ad/tracking scripts can keep it pending indefinitely.
+    await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {});
 
     // Extra wait for JS rendering
     await page.waitForTimeout(2500);
@@ -251,6 +260,13 @@ export async function handleDetail(context, inputConfig, dataset) {
       stats.addError(url, 'extractDetailPage returned null');
       return;
     }
+
+    // Extract SCRAPPED_AD_DETAILS and attach as a new top-level field
+    const scrapedAdDetails = await extractScrapedAdDetails({ url, html, page });
+    adData.SCRAPPED_AD_DETAILS = scrapedAdDetails;
+
+    // Mark this adId as seen so daily re-runs skip it
+    markSeenInKvs(adData._adId || scrapedAdDetails.adId);
 
     // Push to dataset
     await dataset.pushData(adData);
