@@ -1147,11 +1147,9 @@ async function extractLiveDom(page) {
       if (added > 0) break; // found the primary gallery, stop here
     }
 
-    // Strategy 2: og:image — always the main listing photo, safe to include
-    const ogImg = document.querySelector('meta[property="og:image"]');
-    if (ogImg && ogImg.content) addPhoto(ogImg.content);
+    // og:image is intentionally skipped — Sulekha sets it to the site logo, not the ad photo.
 
-    // Strategy 3: JSON-LD image field (structured data for THIS page only)
+    // Strategy 2: JSON-LD image field (structured data for THIS page only)
     const ldScripts = document.querySelectorAll('script[type="application/ld+json"]');
     for (const script of ldScripts) {
       try {
@@ -1654,34 +1652,65 @@ export async function extractScrapedAdDetails({ url, html, page }) {
         verifiedCredentials.push(...[...new Set(vm)]);
       }
 
-      // ── Photos: #photoDiv is Sulekha's authoritative gallery container ────────
-      // Collect every img[src] inside it. Fall back to generic gallery selectors
-      // only if #photoDiv is absent. Never pull from related-listing sections.
-      const photos = [];
-      const seenUrls = new Set();
+      // ── Photos: extract ONLY from #photoDiv / .roomimageblock ───────────────
+      //
+      // Sulekha DOM inside #photoDiv:
+      //   div.roomimagelt
+      //     └─ figure#mainphoto
+      //          └─ a[onclick="showAdPhoto(...)"]
+      //               └─ img[itemprop="photo"][src="https://usimg.sulekha.io/..."]
+      //   div#singleAdthumbImgContainer.roomimagert
+      //     └─ figure.roomimagesplt  (one or more thumbnails)
+      //          └─ a[onclick="showAdPhoto(...)"]
+      //               ├─ img[src="https://usimg.sulekha.io/..."]   ← thumbnail URL
+      //               └─ figcaption ("4 more photos")              ← may or may not be present
+      //
+      // We must capture ALL img[src] from every figure inside #photoDiv —
+      // including those where a figcaption overlay is present.
+      // We do NOT use og:image because Sulekha sets it to the site logo.
 
-      const addSrc = (src) => {
-        if (src && !src.startsWith('data:') && !seenUrls.has(src)) {
-          seenUrls.add(src); photos.push(src);
+      const photos = [];
+      const seenPhotoUrls = new Set();
+
+      // Reject non-photo assets (logos, icons, spinners, placeholders)
+      const isRejectedSrc = (src) =>
+        !src || src.startsWith('data:') ||
+        /logo|icon|spinner|placeholder|blank\.gif|pixel|1x1|transparent/i.test(src);
+
+      const addPhoto = (src) => {
+        if (!isRejectedSrc(src) && !seenPhotoUrls.has(src)) {
+          seenPhotoUrls.add(src);
+          photos.push(src);
         }
       };
 
-      // Strategy 1: Sulekha-specific container by ID / class (highest confidence)
+      // Strategy 1: #photoDiv — authoritative Sulekha gallery container
       const photoDiv = document.getElementById('photoDiv') || document.querySelector('.roomimageblock');
       if (photoDiv) {
-        for (const img of photoDiv.querySelectorAll('img')) {
-          // Prefer the real src; data-src is a lazy-load placeholder
-          addSrc(img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src') || img.getAttribute('data-original') || '');
+        // Pass A: img[itemprop="photo"] — Sulekha marks main property photos with this
+        for (const img of photoDiv.querySelectorAll('img[itemprop="photo"]')) {
+          addPhoto(img.getAttribute('src') || img.getAttribute('data-src') || '');
+        }
+
+        // Pass B: ALL figure img — catches thumbnails (roomimagesplt) INCLUDING those
+        // that have a <figcaption> sibling ("4 more photos" overlay).
+        // data-src used for lazy-loaded thumbnails that haven't loaded yet.
+        for (const img of photoDiv.querySelectorAll('figure img')) {
+          const src =
+            img.getAttribute('src') ||
+            img.getAttribute('data-src') ||
+            img.getAttribute('data-lazy-src') ||
+            img.getAttribute('data-original') || '';
+          addPhoto(src);
         }
       }
 
-      // Strategy 2: Generic gallery selectors (only if #photoDiv not found or empty)
+      // Strategy 2: generic gallery selectors — only if #photoDiv absent or empty
       if (!photos.length) {
         const excludedRoots = [...document.querySelectorAll(
           '[class*="similar"], [class*="related"], [class*="explore"], [class*="nearby-listing"], [class*="browse"], [class*="recommend"], [class*="sponsor"]'
         )];
         const isExcluded = el => excludedRoots.some(r => r.contains(el));
-
         for (const sel of [
           '[class*="photo-gallery"]', '[class*="listing-photo"]', '[class*="property-photo"]',
           '[class*="image-gallery"]', '[class*="gallery"]', '[class*="carousel"]', '[class*="swiper"]',
@@ -1692,24 +1721,13 @@ export async function extractScrapedAdDetails({ url, html, page }) {
           for (const img of container.querySelectorAll('img')) {
             if (isExcluded(img)) continue;
             const src = img.getAttribute('src') || img.getAttribute('data-src') || img.getAttribute('data-lazy-src') || img.getAttribute('data-original') || '';
-            if (src && !src.startsWith('data:') && !seenUrls.has(src)) {
-              seenUrls.add(src); photos.push(src); added++;
-            }
-          }
-          for (const el of container.querySelectorAll('[style*="background-image"]')) {
-            if (isExcluded(el)) continue;
-            const m = (el.getAttribute('style') || '').match(/url\(['"]?([^'")\s]+)['"]?\)/);
-            if (m?.[1] && !m[1].startsWith('data:') && !seenUrls.has(m[1])) {
-              seenUrls.add(m[1]); photos.push(m[1]); added++;
+            if (!isRejectedSrc(src) && !seenPhotoUrls.has(src)) {
+              seenPhotoUrls.add(src); photos.push(src); added++;
             }
           }
           if (added > 0) break;
         }
-      } // end if (!photos.length)
-
-      // og:image as primary/fallback
-      const ogSrc = document.querySelector('meta[property="og:image"]')?.content;
-      if (ogSrc && !seenUrls.has(ogSrc)) { seenUrls.add(ogSrc); photos.unshift(ogSrc); }
+      }
 
       // ── Contact info (site footer / header) ───────────────────────────────
       const phoneMatch = bodyText.match(/(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}/);
