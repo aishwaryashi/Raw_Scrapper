@@ -1,10 +1,11 @@
-[{
-  "_scrapedAt": "2026-06-20T12:03:07.033Z",
-  "_sourceUrl": "https://indianroommates.sulekha.com/1bedroom1bath-apartment-includes-all-utilities-close-to-downtown-jersey-city-and-grove-st-ready-to-move-in_rentals_jersey-city-nj_1565512",
-  "_adId": "1565512",
+[
+{
+  "_scrapedAt": "2026-06-20T15:36:41.482Z",
+  "_sourceUrl": "https://indianroommates.sulekha.com/2-bedroom-apartment-for-rent-downtown-jersey-city-grove-st-path_rentals_jersey-city-nj_2016916",
+  "_adId": "2016916",
   "property": {
     "adId": "not_found",
-    "title": "1bedroom1bath Apartment  Includes All Utilities!!! Close To Downtown Jersey City And Grove St Ready To Move In!",
+    "title": "2 Bedroom Apartment For Rent – Downtown Jersey City (Grove St PATH)",
     "listingUrl": "https://us.sulekha.com/",
     "propertyType": "not_found",
     "accommodationType": "not_found",
@@ -221,11 +222,134 @@
           "mouseovertxt": "avg rent for Dec 2026 $0",
           "year": 2026
         }
+      ],
+      "sodar_query_id": "grM2arPTG7L65OUP3OC_oA8",
+      "injector_basename": "sodar2",
+      "bg_hash_basename": "JF3uDkFLXcf-iUUVLAv3n8hFAALSWpuG01FWh3fZ1Xo",
+      "bg_binary": "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",
+      "rc_enable": "y",
+      "bg_snapshot_delay_ms": "500",
+      "is_gen_204": "0",
+      "ROW_MARKET_TRENDS_BARCHART": [
+        {
+          "rentrangemin": 0,
+          "rentrangemax": 1000,
+          "percentage": 7,
+          "rentrangetxt": "$0- $1K",
+          "su": 110,
+          "rid": 4
+        },
+        {
+          "rentrangemin": 1000,
+          "rentrangemax": 2000,
+          "percentage": 36,
+          "rentrangetxt": "$1K- $2K",
+          "su": 110,
+          "rid": 2
+        },
+        {
+          "rentrangemin": 2000,
+          "rentrangemax": 3000,
+          "percentage": 38,
+          "rentrangetxt": "$2K- $3K",
+          "su": 110,
+          "rid": 1
+        },
+        {
+          "rentrangemin": 3000,
+          "rentrangemax": 4000,
+          "percentage": 16,
+          "rentrangetxt": "$3K- $4K",
+          "su": 110,
+          "rid": 3
+        },
+        {
+          "rentrangemin": 4000,
+          "rentrangemax": 5000,
+          "percentage": 3,
+          "rentrangetxt": "$4K- $5K",
+          "su": 110,
+          "rid": 5
+        },
+        {
+          "rentrangemin": 5000,
+          "rentrangemax": 6000,
+          "percentage": 0,
+          "rentrangetxt": "$5K- $6K",
+          "su": 110,
+          "rid": 6
+        },
+        {
+          "rentrangemin": 6000,
+          "rentrangemax": 7000,
+          "percentage": 0,
+          "rentrangetxt": "$6K- $7K",
+          "su": 110,
+          "rid": 7
+        },
+        {
+          "rentrangemin": 7000,
+          "rentrangemax": 8000,
+          "percentage": 0,
+          "rentrangetxt": "$7K- $8K",
+          "su": 110,
+          "rid": 8
+        },
+        {
+          "rentrangemin": 8000,
+          "rentrangemax": 9000,
+          "percentage": 0,
+          "rentrangetxt": "$8K- $9K",
+          "su": 110,
+          "rid": 9
+        },
+        {
+          "rentrangemin": 9000,
+          "rentrangemax": 10000,
+          "percentage": 0,
+          "rentrangetxt": "$9K- $10K",
+          "su": 110,
+          "rid": 10
+        }
+      ],
+      "ROW_MARKET_TRENDS_PIECHART": [
+        {
+          "usertype": 0,
+          "adtype": 1,
+          "usertypechk": 100,
+          "percentage": 77,
+          "usertypetext": "Owner",
+          "roomtypetxt": "Apartment"
+        },
+        {
+          "usertype": 1,
+          "adtype": 1,
+          "usertypechk": 5,
+          "percentage": 3,
+          "usertypetext": "Agent",
+          "roomtypetxt": "Apartment"
+        },
+        {
+          "usertype": 2,
+          "adtype": 1,
+          "usertypechk": 18,
+          "percentage": 13,
+          "usertypetext": "Sub-leasing",
+          "roomtypetxt": "Apartment"
+        },
+        {
+          "usertype": 3,
+          "adtype": 1,
+          "usertypechk": 6,
+          "percentage": 4,
+          "usertypetext": "Other",
+          "roomtypetxt": "Apartment"
+        }
       ]
     }
   },
   "description": {
-    "fullDescription": "1bedroom 1bath available and ready to move in!!\nRent: $1900\nLocation: wayne street/mercer street jersey city nj\nNo Broker fee!!\nSAFE&CLEAN Neighborhood\nDowntown Jersey City\nCOMPLETE Apartment including all utilities and Semi furnished (includes futon,desk,rug, table,office chair, Microwave, refrigerator)\nUTILITIES included: gas,water, electric, heat/ac\nVery spacious\nThis unit features open living space\nConvenient location\nStainless steel appliances\nGood for couples/singles and small family\nFor rent by owner!\n\nAVAILABLE FROM\n05 Jun 2026\nACCOMODATES\n3\nPOSTED BY\nFatima\nROOM TYPE\nApartment\nEXPECTED RENT\nContact for price\nBEDROOMS\n1 Bed\nBATHROOMS\n1 Bath\nAREA\n1100 sqft\nSTAY TYPE\nLong Term(6+ months)\nACCOMODATION TYPE\nFurnished Apartment\nDEPOSIT\n$1,900\nCOUPLES ALLOWED\nYes",
+    "fullDescription": "Spacious 2 bedroom, 1 bathroom apartment available in the heart of Downtown Jersey City—just a 5-minute walk to Grove Street PATH station, perfect for an easy NYC commute!\n\nHighlights:\n• 2 bedrooms with closets\n• Private balcony\n• 1 full bathroom\n• Utilities included in rent\n• Near Grove St, Van Vorst Park, Hospital, Newark Ave, and more.\n• Convenient access to PATH, buses, restaurants, cafes, and shops\n\nRent: $2600/month (utilities included) - (Negotiable)\nLocation: Downtown Jersey City – Grove Street area\n\nPerfect for roommates, small families, or professionals looking for a prime location with easy transportation.\n\nAVAILABLE FROM\n21 Apr 2026\nACCOMODATES\n3\nPOSTED BY\namjad\nROOM TYPE\nApartment\nEXPECTED RENT\n$2,600 /Month\nBEDROOMS\n2 Beds\nBATHROOMS\n1 Bath\nAREA\n750 sqft\nSTAY TYPE\nLong/Short Term\nACCOMODATION TYPE\nAffordable Apartments\nDEPOSIT\n$2,600",
     "extraNotes": "not_found",
     "specialInstructions": "not_found"
   },
@@ -238,7 +362,7 @@
     "longTermAllowed": "not_found"
   },
   "location": {
-    "fullAddress": "Jersey City, NJ, USA, 07302Jersey City, NJHudson CountyUniversity nearby:1.09 mi. from Christ Hospital",
+    "fullAddress": "256 York Street, Jersey City, NJ, USA, 07302Jersey City, NJHudson County View on Map University nearby:1.2 mi. from Christ Hospital",
     "city": "not_found",
     "state": "not_found",
     "stateCode": "not_found",
@@ -259,59 +383,23 @@
     "_rawLocationObject": {}
   },
   "photos": {
-    "count": 9,
+    "count": 3,
     "items": [
       {
         "index": 0,
-        "url": "https://usimg.sulekha.io/cdn/staticmap/homepage/hicksville-ny.png",
-        "alt": "Sample",
+        "url": "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-04-21-08-02-13-004_11818514.jpeg",
+        "alt": "2 Bedroom Apartment For Rent – Downtown Jersey City (Grove St PATH)",
         "metadata": "not_found"
       },
       {
         "index": 1,
-        "url": "https://usimg.sulekha.io/cdn/roommates/images/apartments_2026-05-21-06-12-03-902_0.jpg",
-        "alt": "Sample",
+        "url": "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-04-25-07-28-01-896_3.jpg",
+        "alt": "not_found",
         "metadata": "not_found"
       },
       {
         "index": 2,
-        "url": "https://usimg.sulekha.io/cdn/roommates/images/apartments_2026-05-14-04-21-44-958_0.jpg",
-        "alt": "Sample",
-        "metadata": "not_found"
-      },
-      {
-        "index": 3,
-        "url": "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-05-03-12-24-50-704_11825587.jpeg",
-        "alt": "Sample",
-        "metadata": "not_found"
-      },
-      {
-        "index": 4,
-        "url": "https://usimg.sulekha.io/cdn/staticmap/homepage/hicksville-ny.png",
-        "alt": "Sample",
-        "metadata": "not_found"
-      },
-      {
-        "index": 5,
-        "url": "https://usimg.sulekha.io/cdn/staticmap/homepage/hicksville-ny.png",
-        "alt": "Sample",
-        "metadata": "not_found"
-      },
-      {
-        "index": 6,
-        "url": "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-06-11-04-45-22-643_11851099.jpeg",
-        "alt": "Sample",
-        "metadata": "not_found"
-      },
-      {
-        "index": 7,
-        "url": "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-06-11-04-45-22-643_11851099.jpeg",
-        "alt": "Sample",
-        "metadata": "not_found"
-      },
-      {
-        "index": 8,
-        "url": "https://d3aew4oo17ml6.cloudfront.net/common/images/sulekha-logo-200x200.png",
+        "url": "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-04-21-08-56-12-670_11818514.jpeg",
         "alt": "not_found",
         "metadata": "not_found"
       }
@@ -320,11 +408,12 @@
   "amenities": {
     "ad_typeproperty_offered": true,
     "propertyapartment": true,
-    "bedrooms1_beds": true,
-    "available_from05_jun_2026": true,
-    "area1100_sqft": true,
-    "private_lawn": true,
-    "no_smoking_veg/non-veg_no_petssemi_furnished": true,
+    "bedrooms2_beds": true,
+    "available_from21_apr_2026": true,
+    "area750_sqft": true,
+    "waterelectricityrefrigeratordishwasherkitchenmicrowave": true,
+    "veg/non-veg_no_pets": true,
+    "don't_mind/no_preference18_to_99_(any)": true,
     "phone_verifiedmail_verified": true
   },
   "preferences": {
@@ -340,7 +429,7 @@
     "_raw": {}
   },
   "poster": {
-    "displayName": "Fatima",
+    "displayName": "amjad",
     "email": "not_found",
     "phone": "not_found",
     "role": "not_found",
@@ -373,9 +462,9 @@
     "createdAt": "not_found",
     "updatedAt": "not_found",
     "timezone": "not_found",
-    "pageUrl": "https://indianroommates.sulekha.com/1bedroom1bath-apartment-includes-all-utilities-close-to-downtown-jersey-city-and-grove-st-ready-to-move-in_rentals_jersey-city-nj_1565512",
-    "ogTitle": "1bedroom1bath Apartment  Includes All Utilities!!! Close To Downtown Jersey City And Grove St Ready To Move In! in Jersey City, NJ 07302 | 1 BHK Apartments and Flats | 1565512 - Sulekha Rentals",
-    "ogDescription": "1bedroom 1bath available and ready to move in!!Rent: $1900Location:  wayne street/mercer street jersey city njNo Broker fee!! SAFE&CLEAN Neighborhood Downtown J, offered 1 BHK Apartments and Flats are available in Jersey City, NJ 07302 on Sulekha.",
+    "pageUrl": "https://indianroommates.sulekha.com/2-bedroom-apartment-for-rent-downtown-jersey-city-grove-st-path_rentals_jersey-city-nj_2016916",
+    "ogTitle": "2 Bedroom Apartment For Rent – Downtown Jersey City (Grove St PATH) in Jersey City, NJ 07302 | 2 BHK Apartments and Flats | 2016916 - Sulekha Rentals",
+    "ogDescription": "Spacious 2 bedroom, 1 bathroom apartment available in the heart of Downtown Jersey City—just a 5-minute walk to Grove Street PATH station, perfect for an easy N, offered 2 BHK Apartments and Flats are available in Jersey City, NJ 07302 on Sulekha.",
     "ogImage": "https://d3aew4oo17ml6.cloudfront.net/common/images/sulekha-logo-200x200.png",
     "canonicalUrl": "not_found"
   },
@@ -425,9 +514,13 @@
     }
   ],
   "capturedApiEndpoints": [
-    "https://indianroommates.sulekha.com/common/commonv4.aspx?type=mtlinechart&adtype=1&cityurl=jersey-city-nj&roomtype=2&beds=&cityormetro=city&service=&_=1781956949546",
-    "https://securepubads.g.doubleclick.net/gampad/ads?pvsid=4061661573581873&correlator=1775914533625403&output=ldjh&gdfp_req=1&vrg=202606150101&ptt=17&impl=fifs&iu_parts=1011382%2CUS_Room_300x250_SR2%2CUS_Room_AdSense_160x600%2CUS_Room_AdSense_300x250_1%2CUS_Room_AdSense_300x250_2%2CUS_Room_All_BTF_300x250%2CUS_Room_ATF_LB_728x90%2CUS_Room_BTF_LB_728x90%2CUS_Roomates_All_WS_160x600%2CUS_Roomates_HP_SR1_300x250%2CUS_Roomates_HP_SR2_300x250%2CUS_Room_ROS_300x250_SR1%2CUS_Room_ROS_300x250_SR2%2CRentals_internal_300x100%2CRoommates_internal_300x100%2CUSLocalJobs_All_ATF_PU_550x480%2C1US_Room_BTF_LB_728x90_New%2CUS_ROOM_ROS_728x90%2CUS_HP_300x100%2CNew_Mobile_300x100%2CStatefarm_ATF_728x90%2CSticker_AD_ALL_728x90%2C72890%2CIndianRoomates_1x1&enc_prev_ius=%2F0%2F1%2C%2F0%2F2%2C%2F0%2F3%2C%2F0%2F4%2C%2F0%2F5%2C%2F0%2F6%2C%2F0%2F7%2C%2F0%2F8%2C%2F0%2F9%2C%2F0%2F10%2C%2F0%2F11%2C%2F0%2F12%2C%2F0%2F13%2C%2F0%2F14%2C%2F0%2F15%2C%2F0%2F16%2C%2F0%2F17%2C%2F0%2F18%2C%2F0%2F19%2C%2F0%2F20%2C%2F0%2F21%2C%2F0%2F22%2C%2F0%2F23&prev_iu_szs=300x250%2C160x600%2C300x250%2C300x250%2C300x250%2C728x90%2C728x90%2C160x600%2C300x250%2C300x250%2C300x250%2C300x250%2C300x100%2C300x100%2C550x480%2C728x90%2C728x90%2C300x100%2C300x100%2C728x90%2C728x90%2C728x90%2C1x1&ifi=1&didk=3213826925~3213826924~3213826927~3213826926~3213826897~3213826896~3213826899~3213826898~3213826901~3213826900~3340319047~3340319040~2719302737~2719302738~979213442~2872381379~415246889~191764275~2457442101~4265232553~2314601788~3681725270~1883483577&dids=div-gpt-ad-1383206898532-0~div-gpt-ad-1383206898532-1~div-gpt-ad-1383206898532-2~div-gpt-ad-1383206898532-3~div-gpt-ad-1383206898532-4~div-gpt-ad-1383206898532-5~div-gpt-ad-1383206898532-6~div-gpt-ad-1383206898532-7~div-gpt-ad-1383206898532-8~div-gpt-ad-1383206898532-9~div-gpt-ad-1383211233604-0~div-gpt-ad-1383211233604-1~div-gpt-ad-1458121030222-4~div-gpt-ad-1458121030222-5~div-gpt-ad-1507894067796-0~div-gpt-ad-1531226503916-0~div-gpt-ad-1534854757932-0~div-gpt-ad-1536592292128-0~div-gpt-ad-1572874113457-0~div-gpt-ad-1571720327497-0~div-gpt-ad-1598877067657-0~div-gpt-ad-1601485822881-0~div-gpt-ad-1607927819922-0&adfs=~~~~~~~~~~3415986096~3743323681~~~2820333182~~~~~~~~2541989103&sfv=1-0-45&sc=1&cookie_enabled=1&abxe=1&dt=1781956956599&lmt=1781956956&adxs=-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C1065%2C1065%2C-9%2C-9%2C525%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C0&adys=-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C2283%2C3036%2C-9%2C-9%2C9270%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C9259&biw=1600&bih=900&scr_x=0&scr_y=0&btvi=-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C1%7C2%7C-1%7C-1%7C3%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C4&ucis=1%7C2%7C3%7C4%7C5%7C6%7C7%7C8%7C9%7Ca%7Cb%7Cc%7Cd%7Ce%7Cf%7Cg%7Ch%7Ci%7Cj%7Ck%7Cl%7Cm%7Cn&oid=2&u_his=3&u_h=768&u_w=1366&u_ah=728&u_aw=1366&u_cd=32&u_sd=1&dmc=1&bc=31&nvt=1&uach=WyIiLCIxOS4wLjAiLCJ4ODYiLCIiLCIxNDUuMC43NjMyLjc3IixudWxsLDAsbnVsbCwiNjQiLFtbIk5vdDpBLUJyYW5kIiwiOTkuMC4wLjAiXSxbIkdvb2dsZSBDaHJvbWUiLCIxNDUuMC43NjMyLjc3Il0sWyJDaHJvbWl1bSIsIjE0NS4wLjc2MzIuNzciXV0sMF0.&url=https%3A%2F%2Findianroommates.sulekha.com%2F1bedroom1bath-apartment-includes-all-utilities-close-to-downtown-jersey-city-and-grove-st-ready-to-move-in_rentals_jersey-city-nj_1565512&ref=https%3A%2F%2Findianroommates.sulekha.com%2F&vis=1&psz=0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C470x30%7C470x30%7C0x-1%7C0x-1%7C1600x0%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C1600x9154&msz=0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C470x0%7C470x0%7C0x-1%7C0x-1%7C550x0%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C1x-1&fws=2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C0%2C0%2C2%2C2%2C128%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C0&ohw=0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0&dlt=1781956949062&idt=6954&cust_params=Cities%3DEWR&adks=208718468%2C3758895301%2C1299115806%2C3591137220%2C2827600693%2C3528599357%2C3323261861%2C2643088000%2C3343669732%2C946422004%2C3133840461%2C1221742574%2C2210292867%2C700891221%2C2247923909%2C3944167831%2C2378542518%2C3521060652%2C2674309994%2C2406342176%2C4017110783%2C3302928429%2C4248192311&frm=20&eoidce=1",
-    "https://us.sulekha.com/common/objprocess.aspx?type=popnearby&nearbyckusrcity=New%20York&nearbyckusrcountry=US&nearbycklat=40.7143&nearbycklong=-74.0067&callback=fnhfpopnearbycallbk"
+    "https://securepubads.g.doubleclick.net/gampad/ads?pvsid=6824082876502093&correlator=1979565465010795&output=ldjh&gdfp_req=1&vrg=202606150101&ptt=17&impl=fifs&iu_parts=1011382%2CUS_Room_300x250_SR2%2CUS_Room_AdSense_160x600%2CUS_Room_AdSense_300x250_1%2CUS_Room_AdSense_300x250_2%2CUS_Room_All_BTF_300x250%2CUS_Room_ATF_LB_728x90%2CUS_Room_BTF_LB_728x90%2CUS_Roomates_All_WS_160x600%2CUS_Roomates_HP_SR1_300x250%2CUS_Roomates_HP_SR2_300x250%2CUS_Room_ROS_300x250_SR1%2CUS_Room_ROS_300x250_SR2%2CRentals_internal_300x100%2CRoommates_internal_300x100%2CUSLocalJobs_All_ATF_PU_550x480%2C1US_Room_BTF_LB_728x90_New%2CUS_ROOM_ROS_728x90%2CUS_HP_300x100%2CNew_Mobile_300x100%2CStatefarm_ATF_728x90%2CSticker_AD_ALL_728x90%2C72890%2CIndianRoomates_1x1&enc_prev_ius=%2F0%2F1%2C%2F0%2F2%2C%2F0%2F3%2C%2F0%2F4%2C%2F0%2F5%2C%2F0%2F6%2C%2F0%2F7%2C%2F0%2F8%2C%2F0%2F9%2C%2F0%2F10%2C%2F0%2F11%2C%2F0%2F12%2C%2F0%2F13%2C%2F0%2F14%2C%2F0%2F15%2C%2F0%2F16%2C%2F0%2F17%2C%2F0%2F18%2C%2F0%2F19%2C%2F0%2F20%2C%2F0%2F21%2C%2F0%2F22%2C%2F0%2F23&prev_iu_szs=300x250%2C160x600%2C300x250%2C300x250%2C300x250%2C728x90%2C728x90%2C160x600%2C300x250%2C300x250%2C300x250%2C300x250%2C300x100%2C300x100%2C550x480%2C728x90%2C728x90%2C300x100%2C300x100%2C728x90%2C728x90%2C728x90%2C1x1&ifi=1&didk=3213826925~3213826924~3213826927~3213826926~3213826897~3213826896~3213826899~3213826898~3213826901~3213826900~3340319047~3340319040~2719302737~2719302738~979213442~2872381379~415246889~191764275~2457442101~4265232553~2314601788~3681725270~1883483577&dids=div-gpt-ad-1383206898532-0~div-gpt-ad-1383206898532-1~div-gpt-ad-1383206898532-2~div-gpt-ad-1383206898532-3~div-gpt-ad-1383206898532-4~div-gpt-ad-1383206898532-5~div-gpt-ad-1383206898532-6~div-gpt-ad-1383206898532-7~div-gpt-ad-1383206898532-8~div-gpt-ad-1383206898532-9~div-gpt-ad-1383211233604-0~div-gpt-ad-1383211233604-1~div-gpt-ad-1458121030222-4~div-gpt-ad-1458121030222-5~div-gpt-ad-1507894067796-0~div-gpt-ad-1531226503916-0~div-gpt-ad-1534854757932-0~div-gpt-ad-1536592292128-0~div-gpt-ad-1572874113457-0~div-gpt-ad-1571720327497-0~div-gpt-ad-1598877067657-0~div-gpt-ad-1601485822881-0~div-gpt-ad-1607927819922-0&adfs=~~~~~~~~~~3415986096~3743323681~~~2820333182~~~~~~~~2541989103&sfv=1-0-45&sc=1&cookie=ID%3D98099122e9d65b65%3AT%3D1781969737%3ART%3D1781969737%3AS%3DALNI_MZPu2rnHy60sASJD6W-WAlpzoOShw&gpic=UID%3D000014872a7536cf%3AT%3D1781969737%3ART%3D1781969737%3AS%3DALNI_MbMLhGTNxAIwOLYcpWVspLYWBibtg&abxe=1&dt=1781969776289&lmt=1781969776&adxs=-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C975%2C975%2C-9%2C-9%2C445%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C0&adys=-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C2364%2C3117%2C-9%2C-9%2C8766%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C-9%2C8755&biw=1440&bih=900&scr_x=0&scr_y=0&btvi=-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C1%7C2%7C-1%7C-1%7C3%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C-1%7C4&ucis=1%7C2%7C3%7C4%7C5%7C6%7C7%7C8%7C9%7Ca%7Cb%7Cc%7Cd%7Ce%7Cf%7Cg%7Ch%7Ci%7Cj%7Ck%7Cl%7Cm%7Cn&oid=2&u_his=4&u_h=1080&u_w=1920&u_ah=1040&u_aw=1920&u_cd=24&u_sd=1&dmc=8&bc=31&nvt=1&uach=WyIiLCIxMC4wLjAiLCJ4ODYiLCIiLCIxNDQuMC43NTU5LjEwOSIsbnVsbCwwLG51bGwsIjY0IixbWyJHb29nbGUgQ2hyb21lIiwiMTQ0LjAuNzU1OS4xMDkiXSxbIkNocm9taXVtIiwiMTQ0LjAuNzU1OS4xMDkiXSxbIk5vdChBOkJyYW5kIiwiOTkuMC4wLjAiXV0sMF0.&url=https%3A%2F%2Findianroommates.sulekha.com%2F2-bedroom-apartment-for-rent-downtown-jersey-city-grove-st-path_rentals_jersey-city-nj_2016916&ref=https%3A%2F%2Findianroommates.sulekha.com%2F&vis=1&psz=0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C450x30%7C450x30%7C0x-1%7C0x-1%7C1440x0%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C1440x8650&msz=0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C450x0%7C450x0%7C0x-1%7C0x-1%7C550x0%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C0x-1%7C1x-1&fws=2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C0%2C0%2C2%2C2%2C128%2C2%2C2%2C2%2C2%2C2%2C2%2C2%2C0&ohw=0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0%2C0&dlt=1781969764635&idt=11045&cust_params=Cities%3DEWR&adks=208718468%2C3758895301%2C1299115806%2C3591137220%2C2827600693%2C3528599357%2C3323261861%2C2643088000%2C3343669732%2C946422004%2C3133840461%2C1221742574%2C2210292867%2C700891221%2C2247923909%2C3944167831%2C2378542518%2C3521060652%2C2674309994%2C2406342176%2C4017110783%2C3302928429%2C4248192311&frm=20&eo_id_str=ID%3Dff21dbe8e7f29a8d%3AT%3D1781969737%3ART%3D1781969737%3AS%3DAA-AfjYfJQZeWX2V-peFQD0xCmA6",
+    "https://indianroommates.sulekha.com/common/commonv4.aspx?type=mtlinechart&adtype=1&cityurl=jersey-city-nj&roomtype=2&beds=&cityormetro=city&service=&_=1781969765437",
+    "https://us.sulekha.com/common/objprocess.aspx?type=popnearby&nearbyckusrcity=New%20York&nearbyckusrcountry=US&nearbycklat=40.7143&nearbycklong=-74.0067&callback=fnhfpopnearbycallbk",
+    "https://securepubads.g.doubleclick.net/pagead/managed/dict/m202606180101/gpt",
+    "https://ep1.adtrafficquality.google/getconfig/sodar?sv=200&tid=gpt&tv=m202606150101&st=env&sjk=6824082876502093",
+    "https://indianroommates.sulekha.com/common/commonv4.aspx?type=mtbarchart&adtype=1&cityurl=jersey-city-nj&roomtype=2&cityormetro=city&beds=&service=&_=1781969765438",
+    "https://indianroommates.sulekha.com/common/commonv4.aspx?type=mtpiechart&cityurl=jersey-city-nj&cityormetro=city&adtype=1&roomtype=2&beds=&service=&_=1781969765439"
   ],
   "_rawData": {
     "@context": "https://schema.org",
@@ -632,71 +725,190 @@
         "mouseovertxt": "avg rent for Dec 2026 $0",
         "year": 2026
       }
+    ],
+    "sodar_query_id": "grM2arPTG7L65OUP3OC_oA8",
+    "injector_basename": "sodar2",
+    "bg_hash_basename": "JF3uDkFLXcf-iUUVLAv3n8hFAALSWpuG01FWh3fZ1Xo",
+    "bg_binary": "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",
+    "rc_enable": "y",
+    "bg_snapshot_delay_ms": "500",
+    "is_gen_204": "0",
+    "ROW_MARKET_TRENDS_BARCHART": [
+      {
+        "rentrangemin": 0,
+        "rentrangemax": 1000,
+        "percentage": 7,
+        "rentrangetxt": "$0- $1K",
+        "su": 110,
+        "rid": 4
+      },
+      {
+        "rentrangemin": 1000,
+        "rentrangemax": 2000,
+        "percentage": 36,
+        "rentrangetxt": "$1K- $2K",
+        "su": 110,
+        "rid": 2
+      },
+      {
+        "rentrangemin": 2000,
+        "rentrangemax": 3000,
+        "percentage": 38,
+        "rentrangetxt": "$2K- $3K",
+        "su": 110,
+        "rid": 1
+      },
+      {
+        "rentrangemin": 3000,
+        "rentrangemax": 4000,
+        "percentage": 16,
+        "rentrangetxt": "$3K- $4K",
+        "su": 110,
+        "rid": 3
+      },
+      {
+        "rentrangemin": 4000,
+        "rentrangemax": 5000,
+        "percentage": 3,
+        "rentrangetxt": "$4K- $5K",
+        "su": 110,
+        "rid": 5
+      },
+      {
+        "rentrangemin": 5000,
+        "rentrangemax": 6000,
+        "percentage": 0,
+        "rentrangetxt": "$5K- $6K",
+        "su": 110,
+        "rid": 6
+      },
+      {
+        "rentrangemin": 6000,
+        "rentrangemax": 7000,
+        "percentage": 0,
+        "rentrangetxt": "$6K- $7K",
+        "su": 110,
+        "rid": 7
+      },
+      {
+        "rentrangemin": 7000,
+        "rentrangemax": 8000,
+        "percentage": 0,
+        "rentrangetxt": "$7K- $8K",
+        "su": 110,
+        "rid": 8
+      },
+      {
+        "rentrangemin": 8000,
+        "rentrangemax": 9000,
+        "percentage": 0,
+        "rentrangetxt": "$8K- $9K",
+        "su": 110,
+        "rid": 9
+      },
+      {
+        "rentrangemin": 9000,
+        "rentrangemax": 10000,
+        "percentage": 0,
+        "rentrangetxt": "$9K- $10K",
+        "su": 110,
+        "rid": 10
+      }
+    ],
+    "ROW_MARKET_TRENDS_PIECHART": [
+      {
+        "usertype": 0,
+        "adtype": 1,
+        "usertypechk": 100,
+        "percentage": 77,
+        "usertypetext": "Owner",
+        "roomtypetxt": "Apartment"
+      },
+      {
+        "usertype": 1,
+        "adtype": 1,
+        "usertypechk": 5,
+        "percentage": 3,
+        "usertypetext": "Agent",
+        "roomtypetxt": "Apartment"
+      },
+      {
+        "usertype": 2,
+        "adtype": 1,
+        "usertypechk": 18,
+        "percentage": 13,
+        "usertypetext": "Sub-leasing",
+        "roomtypetxt": "Apartment"
+      },
+      {
+        "usertype": 3,
+        "adtype": 1,
+        "usertypechk": 6,
+        "percentage": 4,
+        "usertypetext": "Other",
+        "roomtypetxt": "Apartment"
+      }
     ]
   },
   "SCRAPPED_AD_DETAILS": {
-    "adId": "1565512",
-    "sourceUrl": "https://indianroommates.sulekha.com/1bedroom1bath-apartment-includes-all-utilities-close-to-downtown-jersey-city-and-grove-st-ready-to-move-in_rentals_jersey-city-nj_1565512",
-    "title": "1bedroom1bath Apartment Includes All Utilities!!! Close To Downtown Jersey City And Grove St Ready To Move In!",
+    "adId": "2016916",
+    "sourceUrl": "https://indianroommates.sulekha.com/2-bedroom-apartment-for-rent-downtown-jersey-city-grove-st-path_rentals_jersey-city-nj_2016916",
+    "title": "2 Bedroom Apartment For Rent – Downtown Jersey City (Grove St PATH)",
     "breadcrumb": [
       "Indian Roommates",
       "Rentals in New Jersey Area",
       "Rentals in Jersey City",
-      "1bedroom1bath Apartment Includes All Utilities!!! Close To Downtown Jersey City And Grove St Ready To Move In!"
+      "2 Bedroom Apartment For Rent – Downtown Jersey City (Grove St PATH)"
     ],
     "adType": "Property Offered",
     "propertyCategory": "Apartment",
-    "bedrooms": "Contact Advertiser\nYour Name*\nYour Email Address*\nContact Number*\nUSA(+1)\nCA(+1)\nIN(+91)\nAvailable From (Optional)\nDescription*\nEnter Captcha*\nContact Property\nBy sending, you agree to Sulekha's Terms of Use & Privacy Policy.\n\nBeware of rental scams! Situations involving wire transfers or a landlord who is traveling and can't meet you in person can be red flags.Read more.\n\nRental Types in Jersey City, NJ\nApartments for Rent\nCondos for Rent\nTown Houses for Rent\nSingle Family Homes for Rent\nHomes for Rent\nHouses for Rent\nHostels for Rent\nHotels for Rent\nBasement Apartments for Rent\nRental Properties in nearby Neighborhoods\nRental Properties in Ridgewood, Ontario\nRental Properties in Alphabet City, New York\nRental Properties in Arrochar, New York\nRental Properties in Astoria Heights, New York\nRental Properties in Bath Beach, New York\nRoommates in Jersey City, NJ\nNewport High Floor, Furnished Independent Room\nSingleSeparate BathMale$950/ Month\n Jersey City, NJ\nContact Now\nPrivate Furnished Bedroom With Attached Bath Available To Rent Close To Journal Square Path Station\nSingleSeparate BathMale/Female$1100/ Month\n Jersey City, NJ\nContact Now\nFully Furnished Private Room Available For Rent In Jersey City, Walkable To Path\nSingleSeparate BathMale/Female$850/ Month\n Jersey City, NJ\nContact Now\nFully Furnished Private Bedroom With Attached Bath Available To Rent Close To Journal Square Path Station\nSingleSeparate BathMale/Female$1100/ Month\n Jersey City, NJ\nContact Now\nRooms in Jersey City, NJ \nAgents in New Jersey Area\nK\nKamal Js Condle\nAgent with Real Estate Broker and Mortgage Originator\n Edison, NJ\n 7326894179\nView MoreRespond\nM\nMonthtomonth\nAgent with silver planet business usa\n Jersey City, NJ\n 5515801792\nView MoreRespond\nY\nYousaf Qureshi\nAgent with Keller williams\n Englishtown, NJ\n 3474709687\nView MoreRespond\nView More Agents in New Jersey Area \nprev\nnext\nOther Related Roommates Links\nApartments for rent below $300 in Jersey City\nApartments for rent between $300 and $500 in Jersey City\nApartments for rent between $500 and $1000 in Jersey City\nApartments for rent above $1000 in Jersey City\nHousing Corner\nRooms for Rent in the Washington Metro Area - Find the Right Indian Roommate Faster\n\nRooms for Rent in the Washington Metro Area - Find the Right Indian Roommate Faster The Washington Metro Area moves fast because it is a true ..Read more »\n\nRooms for Rent in Seattle Metro Area - Find the Right Indian Roommate Faster\n\nRooms for Rent in the Seattle Metro Area: Find the Right Indian Roommate Faster Seattle Metro is a fast-moving rental region because it combin..Read more »\n\nRooms for Rent and Indian Roommates in Indianapolis Metro Area\n\nRooms for Rent and Indian Roommates in the Indianapolis Metro AreaRead more »\n\nView more Housing Corner \nDiscover more\nClassifieds\nDemographics\nResidential Rentals\nrental\nCity & Local Guides\nReal Estate\nJob Listings\nGeographic Reference",
+    "bedrooms": "Contact Advertiser\nYour Name*\nYour Email Address*\nQuote Your Price(Optional)\nExpected Rent $2,600 /Month\nContact Number*\nUSA(+1)\nCA(+1)\nIN(+91)\nAvailable From (Optional)\nDescription*\nEnter Captcha*\nContact Property\nBy sending, you agree to Sulekha's Terms of Use & Privacy Policy.\n\nBeware of rental scams! Situations involving wire transfers or a landlord who is traveling and can't meet you in person can be red flags.Read more.\n\nRental Types in Jersey City, NJ\nApartments for Rent\nCondos for Rent\nTown Houses for Rent\nSingle Family Homes for Rent\nHomes for Rent\nHouses for Rent\nHostels for Rent\nHotels for Rent\nBasement Apartments for Rent\nRental Properties in nearby Neighborhoods\nRental Properties in Ridgewood, Ontario\nRental Properties in Alphabet City, New York\nRental Properties in Arrochar, New York\nRental Properties in Astoria Heights, New York\nRental Properties in Bath Beach, New York\nRoommates in Jersey City, NJ\nNewport High Floor, Furnished Independent Room\nSingleSeparate BathMale$950/ Month\n Jersey City, NJ\nContact Now\nPrivate Furnished Bedroom With Attached Bath Available To Rent Close To Journal Square Path Station\nSingleSeparate BathMale/Female$1100/ Month\n Jersey City, NJ\nContact Now\nFully Furnished Private Room Available For Rent In Jersey City, Walkable To Path\nSingleSeparate BathMale/Female$850/ Month\n Jersey City, NJ\nContact Now\nFully Furnished Private Bedroom With Attached Bath Available To Rent Close To Journal Square Path Station\nSingleSeparate BathMale/Female$1100/ Month\n Jersey City, NJ\nContact Now\nRooms in Jersey City, NJ \nAgents in New Jersey Area\nM\nMonthtomonth\nAgent with silver planet business usa\n Jersey City, NJ\n 5515801792\nView MoreRespond\nK\nKamal Js Condle\nAgent with Real Estate Broker and Mortgage Originator\n Edison, NJ\n 7326894179\nView MoreRespond\nY\nYousaf Qureshi\nAgent with Keller williams\n Englishtown, NJ\n 3474709687\nView MoreRespond\nView More Agents in New Jersey Area \nprev\nnext\nOther Related Roommates Links\nApartments for rent below $300 in Jersey City\nApartments for rent between $300 and $500 in Jersey City\nApartments for rent between $500 and $1000 in Jersey City\nApartments for rent above $1000 in Jersey City\nDiscover more\nReal Estate\nJob Listings\nResidential Rentals\nCity & Local Guides\nrental\nRental\nClassifieds\nDemographics\nHousing Corner\nRooms for Rent in the Washington Metro Area - Find the Right Indian Roommate Faster\n\nRooms for Rent in the Washington Metro Area - Find the Right Indian Roommate Faster The Washington Metro Area moves fast because it is a true ..Read more »\n\nRooms for Rent in Seattle Metro Area - Find the Right Indian Roommate Faster\n\nRooms for Rent in the Seattle Metro Area: Find the Right Indian Roommate Faster Seattle Metro is a fast-moving rental region because it combin..Read more »\n\nRooms for Rent and Indian Roommates in Indianapolis Metro Area\n\nRooms for Rent and Indian Roommates in the Indianapolis Metro AreaRead more »\n\nView more Housing Corner \nDiscover more\nGeographic Reference\nJob Listings\nResidential Rentals\nDemographics\nClassifieds\nRental\nrental\nCity & Local Guides",
     "bathrooms": "1 Bath",
-    "areaSqft": "1191...9501100850110073268941795515801792347470968730030050050010001000....",
-    "availableFrom": "Contact Advertiser\nYour Name*\nYour Email Address*\nContact Number*\nUSA(+1)\nCA(+1)\nIN(+91)\nAvailable From (Optional)\nDescription*\nEnter Captcha*\nContact Property\nBy sending, you agree to Sulekha's Terms of Use & Privacy Policy.\n\nBeware of rental scams! Situations involving wire transfers or a landlord who is traveling and can't meet you in person can be red flags.Read more.\n\nRental Types in Jersey City, NJ\nApartments for Rent\nCondos for Rent\nTown Houses for Rent\nSingle Family Homes for Rent\nHomes for Rent\nHouses for Rent\nHostels for Rent\nHotels for Rent\nBasement Apartments for Rent\nRental Properties in nearby Neighborhoods\nRental Properties in Ridgewood, Ontario\nRental Properties in Alphabet City, New York\nRental Properties in Arrochar, New York\nRental Properties in Astoria Heights, New York\nRental Properties in Bath Beach, New York\nRoommates in Jersey City, NJ\nNewport High Floor, Furnished Independent Room\nSingleSeparate BathMale$950/ Month\n Jersey City, NJ\nContact Now\nPrivate Furnished Bedroom With Attached Bath Available To Rent Close To Journal Square Path Station\nSingleSeparate BathMale/Female$1100/ Month\n Jersey City, NJ\nContact Now\nFully Furnished Private Room Available For Rent In Jersey City, Walkable To Path\nSingleSeparate BathMale/Female$850/ Month\n Jersey City, NJ\nContact Now\nFully Furnished Private Bedroom With Attached Bath Available To Rent Close To Journal Square Path Station\nSingleSeparate BathMale/Female$1100/ Month\n Jersey City, NJ\nContact Now\nRooms in Jersey City, NJ \nAgents in New Jersey Area\nK\nKamal Js Condle\nAgent with Real Estate Broker and Mortgage Originator\n Edison, NJ\n 7326894179\nView MoreRespond\nM\nMonthtomonth\nAgent with silver planet business usa\n Jersey City, NJ\n 5515801792\nView MoreRespond\nY\nYousaf Qureshi\nAgent with Keller williams\n Englishtown, NJ\n 3474709687\nView MoreRespond\nView More Agents in New Jersey Area \nprev\nnext\nOther Related Roommates Links\nApartments for rent below $300 in Jersey City\nApartments for rent between $300 and $500 in Jersey City\nApartments for rent between $500 and $1000 in Jersey City\nApartments for rent above $1000 in Jersey City\nHousing Corner\nRooms for Rent in the Washington Metro Area - Find the Right Indian Roommate Faster\n\nRooms for Rent in the Washington Metro Area - Find the Right Indian Roommate Faster The Washington Metro Area moves fast because it is a true ..Read more »\n\nRooms for Rent in Seattle Metro Area - Find the Right Indian Roommate Faster\n\nRooms for Rent in the Seattle Metro Area: Find the Right Indian Roommate Faster Seattle Metro is a fast-moving rental region because it combin..Read more »\n\nRooms for Rent and Indian Roommates in Indianapolis Metro Area\n\nRooms for Rent and Indian Roommates in the Indianapolis Metro AreaRead more »\n\nView more Housing Corner \nDiscover more\nClassifieds\nDemographics\nResidential Rentals\nrental\nCity & Local Guides\nReal Estate\nJob Listings\nGeographic Reference",
-    "rent": "Contact for price",
+    "areaSqft": "26001191...9501100850110055158017927326894179347470968730030050050010001000....",
+    "availableFrom": "Contact Advertiser\nYour Name*\nYour Email Address*\nQuote Your Price(Optional)\nExpected Rent $2,600 /Month\nContact Number*\nUSA(+1)\nCA(+1)\nIN(+91)\nAvailable From (Optional)\nDescription*\nEnter Captcha*\nContact Property\nBy sending, you agree to Sulekha's Terms of Use & Privacy Policy.\n\nBeware of rental scams! Situations involving wire transfers or a landlord who is traveling and can't meet you in person can be red flags.Read more.\n\nRental Types in Jersey City, NJ\nApartments for Rent\nCondos for Rent\nTown Houses for Rent\nSingle Family Homes for Rent\nHomes for Rent\nHouses for Rent\nHostels for Rent\nHotels for Rent\nBasement Apartments for Rent\nRental Properties in nearby Neighborhoods\nRental Properties in Ridgewood, Ontario\nRental Properties in Alphabet City, New York\nRental Properties in Arrochar, New York\nRental Properties in Astoria Heights, New York\nRental Properties in Bath Beach, New York\nRoommates in Jersey City, NJ\nNewport High Floor, Furnished Independent Room\nSingleSeparate BathMale$950/ Month\n Jersey City, NJ\nContact Now\nPrivate Furnished Bedroom With Attached Bath Available To Rent Close To Journal Square Path Station\nSingleSeparate BathMale/Female$1100/ Month\n Jersey City, NJ\nContact Now\nFully Furnished Private Room Available For Rent In Jersey City, Walkable To Path\nSingleSeparate BathMale/Female$850/ Month\n Jersey City, NJ\nContact Now\nFully Furnished Private Bedroom With Attached Bath Available To Rent Close To Journal Square Path Station\nSingleSeparate BathMale/Female$1100/ Month\n Jersey City, NJ\nContact Now\nRooms in Jersey City, NJ \nAgents in New Jersey Area\nM\nMonthtomonth\nAgent with silver planet business usa\n Jersey City, NJ\n 5515801792\nView MoreRespond\nK\nKamal Js Condle\nAgent with Real Estate Broker and Mortgage Originator\n Edison, NJ\n 7326894179\nView MoreRespond\nY\nYousaf Qureshi\nAgent with Keller williams\n Englishtown, NJ\n 3474709687\nView MoreRespond\nView More Agents in New Jersey Area \nprev\nnext\nOther Related Roommates Links\nApartments for rent below $300 in Jersey City\nApartments for rent between $300 and $500 in Jersey City\nApartments for rent between $500 and $1000 in Jersey City\nApartments for rent above $1000 in Jersey City\nDiscover more\nReal Estate\nJob Listings\nResidential Rentals\nCity & Local Guides\nrental\nRental\nClassifieds\nDemographics\nHousing Corner\nRooms for Rent in the Washington Metro Area - Find the Right Indian Roommate Faster\n\nRooms for Rent in the Washington Metro Area - Find the Right Indian Roommate Faster The Washington Metro Area moves fast because it is a true ..Read more »\n\nRooms for Rent in Seattle Metro Area - Find the Right Indian Roommate Faster\n\nRooms for Rent in the Seattle Metro Area: Find the Right Indian Roommate Faster Seattle Metro is a fast-moving rental region because it combin..Read more »\n\nRooms for Rent and Indian Roommates in Indianapolis Metro Area\n\nRooms for Rent and Indian Roommates in the Indianapolis Metro AreaRead more »\n\nView more Housing Corner \nDiscover more\nGeographic Reference\nJob Listings\nResidential Rentals\nDemographics\nClassifieds\nRental\nrental\nCity & Local Guides",
+    "rent": "$2,600 /Month",
     "rentCurrency": "USD",
-    "deposit": "1,900",
+    "deposit": "2,600",
     "accommodates": null,
     "roomType": "Apartment",
-    "stayType": "Long Term(6+ months)",
+    "stayType": "Long/Short Term",
     "accommodationType": null,
-    "couplesAllowed": "Yes",
-    "postedBy": "Fatima",
-    "postedOn": "Jun 05, 2026",
-    "adIdOnSite": "1565512",
-    "description": "1bedroom 1bath available and ready to move in!!\nRent: $1900\nLocation: wayne street/mercer street jersey city nj\nNo Broker fee!!\nSAFE&CLEAN Neighborhood\nDowntown Jersey City\nCOMPLETE Apartment including all utilities and Semi furnished (includes futon,desk,rug, table,office chair, Microwave, refrigerator)\nUTILITIES included: gas,water, electric, heat/ac\nVery spacious\nThis unit features open living space\nConvenient location\nStainless steel appliances\nGood for couples/singles and small family\nFor rent by owner!\n\nAVAILABLE FROM\n05 Jun 2026\nACCOMODATES\n3\nPOSTED BY\nFatima\nROOM TYPE\nApartment\nEXPECTED RENT\nContact for price\nBEDROOMS\n1 Bed\nBATHROOMS\n1 Bath\nAREA\n1100 sqft\nSTAY TYPE\nLong Term(6+ months)\nACCOMODATION TYPE\nFurnished Apartment\nDEPOSIT\n$1,900\nCOUPLES ALLOWED\nYes",
+    "couplesAllowed": null,
+    "postedBy": "amjad",
+    "postedOn": "Apr 21, 2026",
+    "adIdOnSite": "2016916",
+    "description": "Spacious 2 bedroom, 1 bathroom apartment available in the heart of Downtown Jersey City—just a 5-minute walk to Grove Street PATH station, perfect for an easy NYC commute!\n\nHighlights:\n• 2 bedrooms with closets\n• Private balcony\n• 1 full bathroom\n• Utilities included in rent\n• Near Grove St, Van Vorst Park, Hospital, Newark Ave, and more.\n• Convenient access to PATH, buses, restaurants, cafes, and shops\n\nRent: $2600/month (utilities included) - (Negotiable)\nLocation: Downtown Jersey City – Grove Street area\n\nPerfect for roommates, small families, or professionals looking for a prime location with easy transportation.\n\nAVAILABLE FROM\n21 Apr 2026\nACCOMODATES\n3\nPOSTED BY\namjad\nROOM TYPE\nApartment\nEXPECTED RENT\n$2,600 /Month\nBEDROOMS\n2 Beds\nBATHROOMS\n1 Bath\nAREA\n750 sqft\nSTAY TYPE\nLong/Short Term\nACCOMODATION TYPE\nAffordable Apartments\nDEPOSIT\n$2,600",
     "address": {
-      "fullAddress": "Jersey City, NJ, USA, 07302Jersey City, NJHudson CountyUniversity nearby:1.09 mi. from Christ Hospital",
-      "city": "Jersey City",
-      "state": "NJ",
+      "fullAddress": "256 York Street, Jersey City, NJ, USA, 07302Jersey City, NJHudson County View on Map University nearby:1.2 mi. from Christ Hospital",
+      "city": null,
+      "state": null,
       "zipcode": null,
-      "county": "NJHudson County",
-      "nearbyUniversity": "1.09 mi. from Christ Hospital",
+      "county": null,
+      "nearbyUniversity": null,
       "nearbyNeighborhoods": [
-        "Meatpacking District",
-        "Downtown Jersey City",
-        "McGinley Square"
+        "Van Vorst Park",
+        "Downtown Jersey City"
       ]
     },
-    "amenities": [
-      "Private Lawn"
-    ],
+    "amenities": [],
     "utilities": [
       "Water",
       "Electricity",
-      "Room Heater",
-      "Air Conditioner",
       "Refrigerator",
+      "Dishwasher",
       "Kitchen",
       "Microwave"
     ],
     "additionalInfo": {
-      "smoking": "No Smoking",
+      "smoking": null,
       "vegNonVeg": "Veg/Non-Veg",
       "pets": "No Pets",
-      "furnishing": "Semi Furnished"
+      "furnishing": null
     },
     "tenantPreferences": {
-      "alcohol": "Alcohol Not allowed",
+      "alcohol": null,
       "occupation": "Don't mind/No preference",
-      "genderPreference": "Male/Female",
+      "genderPreference": null,
       "ageRange": "18 to 99 (Any)"
     },
     "verifiedCredentials": [
@@ -704,23 +916,18 @@
       "Mail Verified"
     ],
     "photos": [
-      "https://d3aew4oo17ml6.cloudfront.net/common/images/sulekha-logo-200x200.png",
-      "https://usimg.sulekha.io/cdn/staticmap/homepage/hicksville-ny.png",
-      "https://usimg.sulekha.io/cdn/roommates/images/apartments_2026-05-21-06-12-03-902_0.jpg",
-      "https://usimg.sulekha.io/cdn/roommates/images/apartments_2026-05-14-04-21-44-958_0.jpg",
-      "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-05-03-12-24-50-704_11825587.jpeg",
-      "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-06-11-04-45-22-643_11851099.jpeg"
+      "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-04-21-08-02-13-004_11818514.jpeg",
+      "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-04-25-07-28-01-896_3.jpg",
+      "https://usimg.sulekha.io/cdn/rentals/images/rentals_2026-04-21-08-56-12-670_11818514.jpeg"
     ],
-    "photoCount": 6,
+    "photoCount": 3,
     "contactInfo": {
-      "phone": "201-305-9190",
+      "phone": "201-874-2243",
       "email": "us.sulekha@sulekha.com"
     },
-    "scrapedAt": "2026-06-20T12:03:10.113Z"
+    "scrapedAt": "2026-06-20T15:36:41.682Z"
   }
 },
-
-
 
 
 

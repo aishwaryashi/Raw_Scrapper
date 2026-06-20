@@ -228,6 +228,19 @@ export async function handleDetail(context, inputConfig, dataset) {
     // Brief settle time for lazy-loaded images
     await page.waitForTimeout(1500);
 
+    // Click the first gallery link to trigger showAdPhoto(), which loads additional
+    // photos (those behind "4 more photos" overlays) into the DOM via JS/AJAX.
+    // Without this click, only the initially visible thumbnails are in the DOM.
+    try {
+      await page.evaluate(() => {
+        const trigger =
+          document.querySelector('#photoDiv a[onclick*="showAdPhoto"]') ||
+          document.querySelector('#photoDiv figure a');
+        if (trigger) trigger.click();
+      });
+      await page.waitForTimeout(2500);
+    } catch {}
+
     const html = await page.content();
 
     // Detach API interception

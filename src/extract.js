@@ -1705,6 +1705,23 @@ export async function extractScrapedAdDetails({ url, html, page }) {
         }
       }
 
+      // Strategy 1b: Regex scan on the full page HTML for Sulekha CDN rental image URLs.
+      // This catches photos that exist only in inline JavaScript data blobs, JSON attributes,
+      // or gallery lightbox markup injected after showAdPhoto() was clicked — i.e. ALL the
+      // "4 more photos" images that were never in the initial visible DOM.
+      // Runs unconditionally so it supplements whatever Strategy 1 already found.
+      {
+        const pageHtml = document.documentElement.outerHTML;
+        const cdnMatches = pageHtml.match(
+          /https:\/\/usimg\.sulekha\.io\/cdn\/rentals\/images\/[^\s"'<>\\]+/gi
+        ) || [];
+        for (const rawUrl of cdnMatches) {
+          // Strip any trailing HTML attribute characters captured by the greedy pattern
+          const cleanUrl = rawUrl.replace(/['")\s<>\\]+$/, '');
+          addPhoto(cleanUrl);
+        }
+      }
+
       // Strategy 2: generic gallery selectors — only if #photoDiv absent or empty
       if (!photos.length) {
         const excludedRoots = [...document.querySelectorAll(
