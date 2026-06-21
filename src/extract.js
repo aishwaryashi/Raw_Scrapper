@@ -1136,6 +1136,16 @@ async function extractLiveDom(page) {
         if (isInExcludedSection(img)) continue;
         const src = img.src || img.getAttribute('data-src') || img.getAttribute('data-lazy-src') || img.getAttribute('data-original') || '';
         if (isAdPhoto(src, img.alt || '', img)) { addPhoto(src); added++; }
+
+        // If this img is wrapped in an <a>, also capture the href as full-size URL.
+        // Scoped to this container so we only get the current ad's photos.
+        const parentA = img.closest('a');
+        if (parentA) {
+          const href = (parentA.getAttribute('href') || '').trim();
+          if (href && !href.startsWith('javascript:') && !href.startsWith('#') && href !== '') {
+            if (isAdPhoto(href, '', img)) { addPhoto(href); }
+          }
+        }
       }
       // Background images inside same container
       for (const el of primaryContainer.querySelectorAll('[style*="background-image"]')) {
@@ -1695,6 +1705,8 @@ export async function extractScrapedAdDetails({ url, html, page }) {
         // Pass B: ALL figure img — catches thumbnails (roomimagesplt) INCLUDING those
         // that have a <figcaption> sibling ("4 more photos" overlay).
         // data-src used for lazy-loaded thumbnails that haven't loaded yet.
+        // Also checks the parent <a> href — on some Sulekha layouts the <a>
+        // links to the full-size image while img.src is only the thumbnail.
         for (const img of photoDiv.querySelectorAll('figure img')) {
           const src =
             img.getAttribute('src') ||
@@ -1702,6 +1714,15 @@ export async function extractScrapedAdDetails({ url, html, page }) {
             img.getAttribute('data-lazy-src') ||
             img.getAttribute('data-original') || '';
           addPhoto(src);
+
+          // If this img is wrapped in an <a>, capture the href as the full-size URL
+          const parentA = img.closest('a');
+          if (parentA) {
+            const href = (parentA.getAttribute('href') || '').trim();
+            if (href && !href.startsWith('javascript:') && !href.startsWith('#') && href !== '') {
+              addPhoto(href);
+            }
+          }
         }
       }
 
