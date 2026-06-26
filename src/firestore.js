@@ -203,6 +203,64 @@ function toDateStr(ts) {
   return `${y}-${m}-${day}`;
 }
 
+// ── Preference option lists ────────────────────────────────────────────────────
+
+const LANGUAGE_OPTIONS   = ["English","Hindi","Tamil","Telugu","Malayalam","Gujarati","Bengali","Kannada","Urdu","Manipuri","Marathi","Nepali","Oriya","Punjabi","Sanskrit","Sindhi","Santhali","Maithili","Dogri","Assamese","Konkani","Kashmiri","Other"];
+const AGE_RANGE_OPTIONS  = ["18 to 99 (Any)","18 to 25","18 to 50","25 to 45","40 to 55","55 to 70","70 plus"];
+const GENDER_OPTIONS     = ["Male","Female","Any"];
+const OCCUPATION_OPTIONS = ["Students only allowed","Professionals only allowed","Don't mind/No preference","Others"];
+const PETS_OPTIONS       = ["No Pets","Only Dogs","Only Cats","Any Pet is Ok"];
+const SMOKING_OPTIONS    = ["No Smoking","Smoking is Ok","Smoke outside only"];
+const VEGETARIAN_OPTIONS = ["Yes, Vegetarian mandatory","No, Non-veg is ok","Both"];
+
+/**
+ * Case-insensitive match against an allowed options list.
+ * Tries exact match first, then checks whether the raw value contains an option
+ * or an option contains the raw value.  Returns the canonical option or null.
+ */
+function matchOption(raw, options) {
+  if (!raw) return null;
+  const s = String(raw).trim().toLowerCase();
+  const exact = options.find(o => o.toLowerCase() === s);
+  if (exact) return exact;
+  const sub = options.find(o => s.includes(o.toLowerCase()) || o.toLowerCase().includes(s));
+  return sub || null;
+}
+
+/**
+ * Convert an alcohol-related scraped string to a boolean.
+ * "allowed" / "ok" / "yes" → true;  "not allowed" / "no" / "prohibit" → false.
+ */
+function normalizeAlcohol(raw) {
+  if (raw == null) return null;
+  const s = String(raw).toLowerCase();
+  if (/not?\s+allow|no\s+alc|prohibit|not\s+ok/i.test(s)) return false;
+  if (/allow|is\s+ok|\bok\b|yes|permit/i.test(s)) return true;
+  return null;
+}
+
+/**
+ * Normalise a languages value (array, object, or string) against LANGUAGE_OPTIONS.
+ * Returns an array of canonical language strings.
+ */
+function normalizeLanguages(raw) {
+  if (!raw) return [];
+  if (Array.isArray(raw)) {
+    return raw.map(r => matchOption(r, LANGUAGE_OPTIONS)).filter(Boolean);
+  }
+  if (typeof raw === 'object') {
+    return Object.keys(raw)
+      .filter(k => raw[k])
+      .map(k => matchOption(k, LANGUAGE_OPTIONS))
+      .filter(Boolean);
+  }
+  if (typeof raw === 'string') {
+    const m = matchOption(raw, LANGUAGE_OPTIONS);
+    return m ? [m] : [];
+  }
+  return [];
+}
+
 /**
  * Scan a text block for common rent-disclosure patterns and return
  * the first matched dollar string (suitable for passing to parseRentStr).
@@ -419,8 +477,38 @@ function buildFirestoreDoc(adData) {
     return { primary: nearbyArr[0], secondary: nearbyArr.slice(1) };
   })();
 
-  const languages = (typeof prefs.languages === 'object' && prefs.languages !== null && prefs.languages !== 'not_found')
-    ? prefs.languages : {};
+  // ── Preference normalisation ──────────────────────────────────────────────
+  const scrTenantPrefs = scr.tenantPreferences || {};
+  const scrAddInfo     = scr.additionalInfo    || {};
+
+  const effectiveAgeRange   = matchOption(scrTenantPrefs.ageRange,         AGE_RANGE_OPTIONS)
+                           || matchOption(n(prefs.ageRange),                AGE_RANGE_OPTIONS)
+                           || null;
+
+  const effectiveOccupation = matchOption(scrTenantPrefs.occupation,        OCCUPATION_OPTIONS)
+                           || matchOption(n(prefs.occupation),              OCCUPATION_OPTIONS)
+                           || null;
+
+  const effectiveGender     = matchOption(scrTenantPrefs.genderPreference,  GENDER_OPTIONS)
+                           || matchOption(n(prefs.preferredGender),         GENDER_OPTIONS)
+                           || null;
+
+  const effectivePets       = matchOption(scrAddInfo.pets,                  PETS_OPTIONS)
+                           || matchOption(n(prefs.pets),                    PETS_OPTIONS)
+                           || null;
+
+  const effectiveSmoking    = matchOption(scrAddInfo.smoking,               SMOKING_OPTIONS)
+                           || matchOption(n(prefs.smoking),                 SMOKING_OPTIONS)
+                           || null;
+
+  const effectiveVegetarian = matchOption(scrAddInfo.vegNonVeg,             VEGETARIAN_OPTIONS)
+                           || matchOption(n(prefs.vegetarian),              VEGETARIAN_OPTIONS)
+                           || null;
+
+  const effectiveAlcohol    = normalizeAlcohol(scrTenantPrefs.alcohol)
+                           ?? (n(prefs.alcoholAllowed) != null ? Boolean(n(prefs.alcoholAllowed)) : null);
+
+  const effectiveLanguages  = normalizeLanguages(n(prefs.languages));
 
   return {
     // ── Top-level amenities (key:bool map from DOM + deep extraction) ────────
@@ -459,7 +547,8 @@ function buildFirestoreDoc(adData) {
     adId,
 
     details: {
-      amenities: {},          // structured amenities reserved for frontend-posted ads
+      amenities:  Array.isArray(scr.amenities)  ? scr.amenities.filter(Boolean)  : [],
+      utilities:  Array.isArray(scr.utilities)  ? scr.utilities.filter(Boolean)  : [],
       availability: {
         daysAvailable: n(avail.daysAvailable),
         from:          effectiveAvailFrom,
@@ -529,17 +618,17 @@ function buildFirestoreDoc(adData) {
     photos,
 
     preferences: {
-      ageRange:        n(prefs.ageRange),
-      alcoholAllowed:  n(prefs.alcoholAllowed),
+      ageRange:        effectiveAgeRange,
+      alcoholAllowed:  effectiveAlcohol,
       couplesWelcome:  /^yes$/i.test(String(scr.couplesAllowed || ''))
         ? true
         : n(prefs.couplesWelcome),
-      languages,
-      occupation:      n(prefs.occupation),
-      pets:            n(prefs.pets),
-      preferredGender: n(prefs.preferredGender),
-      smoking:         n(prefs.smoking),
-      vegetarian:      n(prefs.vegetarian),
+      languages:       effectiveLanguages,
+      occupation:      effectiveOccupation,
+      pets:            effectivePets,
+      preferredGender: effectiveGender,
+      smoking:         effectiveSmoking,
+      vegetarian:      effectiveVegetarian,
     },
 
     privacy: {
@@ -564,6 +653,12 @@ function buildFirestoreDoc(adData) {
     user: {
       ...FIXED_USER,
       displayName: scr.postedBy || FIXED_USER.displayName,
+    },
+
+    responseCount: 0,
+
+    stats: {
+      responseCount: 0,
     },
   };
 }
