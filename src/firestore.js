@@ -464,7 +464,7 @@ function buildFirestoreDoc(adData) {
         daysAvailable: n(avail.daysAvailable),
         from:          effectiveAvailFrom,
         stayType,
-        to:            n(avail.availableTo),
+        to:            '2100-12-31',
       },
       description,
       openHouse: { date: null, endTime: null, startTime: null },
