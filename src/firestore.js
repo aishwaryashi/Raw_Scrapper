@@ -149,6 +149,33 @@ function parseAreaNum(str) {
 }
 
 /**
+ * Scan a text block for common rent-disclosure patterns and return
+ * the first matched dollar string (suitable for passing to parseRentStr).
+ *
+ * Handles:
+ *   "Rent: $1900"
+ *   "EXPECTED RENT\n$2,100 /Month"
+ *   "$2000 Per Month"  (often in titles)
+ */
+function extractRentFromText(text) {
+  if (!text || typeof text !== 'string') return null;
+
+  // "EXPECTED RENT" label followed by amount on the next line
+  const expM = text.match(/expected\s+rent[:\s]*\r?\n\s*(\$[\d,]+(?:\.\d+)?(?:\s*\/\s*\w+)?)/i);
+  if (expM) return expM[1];
+
+  // "Rent: $1900" or "Rent $1900" inline label
+  const rentLabelM = text.match(/\brent[:\s]+\*?\s*(\$[\d,]+(?:\.\d+)?(?:\s*\/?\s*(?:month|mo\.?|week|day|year|yr))?)/i);
+  if (rentLabelM) return rentLabelM[1];
+
+  // "$2000 Per Month" or "$2000/month" pattern
+  const perMonthM = text.match(/(\$[\d,]+(?:\.\d+)?)(?:\s*(?:per|\/)\s*month|\s*\/\s*mo\.?)/i);
+  if (perMonthM) return `${perMonthM[1]} /Month`;
+
+  return null;
+}
+
+/**
  * Scan the amenities key-value object and derive structured values.
  *
  * Examples of keys produced by extractAmenities():
@@ -240,17 +267,35 @@ function buildFirestoreDoc(adData) {
   const scrBeds  = parseBedsNum(scr.bedrooms);
   const scrArea  = parseAreaNum(scr.areaSqft);
 
+  // prop.rentAmount may arrive as a raw string like "$1,000 /Month" from the
+  // JSON extractor — parse it into a numeric amount so Firestore always gets a number.
+  const propRentRaw    = n(prop.rentAmount);
+  const propRentParsed = typeof propRentRaw === 'string' ? parseRentStr(propRentRaw) : null;
+  const propRentAmount = typeof propRentRaw === 'number'
+    ? propRentRaw
+    : (propRentParsed?.amount ?? null);
+
+  // When scr.rent is "Contact for price" (no number), fall back to scanning
+  // the description text and title for patterns like "Rent: $1900" or "$2,100 /Month".
+  const descText = n(adData.description?.fullDescription) || n(scr.description) || null;
+  const titleText = n(prop.title) || '';
+  const rentFromText = parseRentStr(
+    extractRentFromText(descText) || extractRentFromText(titleText)
+  );
+
   // ── Amenity map + derived values ──────────────────────────────────────────
   const amenities  = buildAmenitiesMap(adData);
   const fromKeys   = extractFromAmenityKeys(amenities);
 
-  // ── Effective (merged) scalar values — JSON > SCRAPPED > amenity-derived ──
-  const effectiveBaths    = n(prop.baths)        ?? scrBaths   ?? null;
-  const effectiveBeds     = n(prop.beds)          ?? scrBeds    ?? fromKeys.beds ?? null;
-  const effectiveRent     = n(prop.rentAmount)    ?? scrRent?.amount ?? null;
-  const effectiveCurrency = n(prop.rentCurrency)  || scrRent?.currency || 'USD';
-  const effectiveMode     = n(prop.rentFrequency) || scrRent?.mode     || 'per_month';
-  const effectiveSqFt     = n(prop.squareFeet)    ?? scrArea    ?? fromKeys.squareFeet ?? null;
+  // ── Effective (merged) scalar values ─────────────────────────────────────────
+  // squareFeet: amenity key (e.g. "area1100_sqft") wins — it's the value the
+  // poster explicitly entered in the Sulekha form and is the most reliable source.
+  const effectiveBaths    = n(prop.baths)      ?? scrBaths   ?? null;
+  const effectiveBeds     = n(prop.beds)        ?? scrBeds    ?? fromKeys.beds ?? null;
+  const effectiveRent     = propRentAmount      ?? scrRent?.amount    ?? rentFromText?.amount    ?? null;
+  const effectiveCurrency = propRentParsed?.currency || n(prop.rentCurrency) || scrRent?.currency || rentFromText?.currency || 'USD';
+  const effectiveMode     = propRentParsed?.mode     || n(prop.rentFrequency) || scrRent?.mode   || rentFromText?.mode     || 'per_month';
+  const effectiveSqFt     = fromKeys.squareFeet   ?? scrArea    ?? n(prop.squareFeet) ?? null;
   // Intent: amenity key wins when present; else metadata; else "list"
   const effectiveIntent   = fromKeys.intent || n(meta.intent) || 'list';
   // Available-from: amenity key can override if not in JSON
@@ -274,8 +319,33 @@ function buildFirestoreDoc(adData) {
   const stayType = (typeof avail.stayType === 'object' && avail.stayType !== null && avail.stayType !== 'not_found')
     ? avail.stayType : {};
 
-  const neighborhoods = (typeof loc.neighborhoods === 'object' && loc.neighborhoods !== null && loc.neighborhoods !== 'not_found')
-    ? loc.neighborhoods : {};
+  // Build neighborhoods object:
+  //   - 0 items           → {}
+  //   - 1 item            → { primary: "item1" }
+  //   - 2 items           → { primary: "item1", secondary: ["item2"] }
+  //   - 3+ items          → { primary: "item1", secondary: ["item2", "item3", ...] }
+  const neighborhoods = (() => {
+    // Merge from both the deep extractor (loc) and SCRAPPED_AD_DETAILS.address
+    const fromLoc = loc.nearbyNeighborhoods;
+    const fromScr = scr.address?.nearbyNeighborhoods;
+
+    const toArr = (v) => {
+      if (Array.isArray(v)) return v.filter(x => x && x !== 'not_found');
+      if (v && typeof v === 'string' && v !== 'not_found') return [v];
+      return [];
+    };
+
+    // Merge both sources, deduplicated, preserving order
+    const seen = new Set();
+    const nearbyArr = [];
+    for (const item of [...toArr(fromLoc), ...toArr(fromScr)]) {
+      if (!seen.has(item)) { seen.add(item); nearbyArr.push(item); }
+    }
+
+    if (!nearbyArr.length) return {};
+    if (nearbyArr.length === 1) return { primary: nearbyArr[0] };
+    return { primary: nearbyArr[0], secondary: nearbyArr.slice(1) };
+  })();
 
   const languages = (typeof prefs.languages === 'object' && prefs.languages !== null && prefs.languages !== 'not_found')
     ? prefs.languages : {};
@@ -447,14 +517,19 @@ export async function saveAdToFirestore(adData) {
     const existing = await docRef.get();
 
     if (existing.exists) {
-      // If the existing document already has geocoded coords, it's a true duplicate.
-      const existingLat = existing.data()?.details?.location?.lat;
-      if (existingLat != null) {
-        log.info(`[FIRESTORE] Ad ${adId} already exists with geocoded data — skipping.`);
+      // Re-save only if any of the three required geo fields are missing.
+      const existingLoc = existing.data()?.details?.location || {};
+      const missingGeo =
+        existingLoc.lat      == null ||
+        !existingLoc.locality  ||
+        !existingLoc.metroArea;
+
+      if (!missingGeo) {
+        log.info(`[FIRESTORE] Ad ${adId} already complete (lat/locality/metroArea present) — skipping.`);
         return false;
       }
 
-      // Document exists but lat/lng are null — update location + search fields with newly geocoded data.
+      // One or more required fields are null — update location + search index.
       const doc = buildFirestoreDoc(adData);
       await docRef.update({
         'details.location':  doc.details.location,
@@ -466,7 +541,7 @@ export async function saveAdToFirestore(adData) {
         '_search.zipcode':   doc._search.zipcode,
         'metadata.updatedAt': FieldValue.serverTimestamp(),
       });
-      log.info(`[FIRESTORE] Updated ad ${adId} — backfilled geocoded location fields.`);
+      log.info(`[FIRESTORE] Updated ad ${adId} — filled missing geo fields (lat/locality/metroArea).`);
       return true;
     }
 
