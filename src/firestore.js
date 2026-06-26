@@ -149,6 +149,32 @@ function parseAreaNum(str) {
 }
 
 /**
+ * Map a raw propertyCategory label (from SCRAPPED_AD_DETAILS or JSON) to a
+ * canonical propertyType value.  Matching is case-insensitive and tolerates
+ * extra whitespace.  Returns null when no match is found.
+ */
+const PROPERTY_TYPE_MAP = {
+  'single family home': 'single_family_home',
+  'apartment':          'apartment',
+  'condo':              'condo',
+  'town house':         'townhouse',
+  'townhouse':          'townhouse',
+  'homes':              'homes',
+  'home':               'homes',
+  'houses':             'houses',
+  'house':              'houses',
+  'shared room':        'shared_room',
+  'single room':        'single_room',
+  'paying guest':       'paying_guest',
+};
+
+function normalizePropertyType(raw) {
+  if (!raw) return null;
+  const key = String(raw).trim().toLowerCase().replace(/\s+/g, ' ');
+  return PROPERTY_TYPE_MAP[key] || null;
+}
+
+/**
  * Scan a text block for common rent-disclosure patterns and return
  * the first matched dollar string (suitable for passing to parseRentStr).
  *
@@ -295,7 +321,14 @@ function buildFirestoreDoc(adData) {
   const effectiveRent     = propRentAmount      ?? scrRent?.amount    ?? rentFromText?.amount    ?? null;
   const effectiveCurrency = propRentParsed?.currency || n(prop.rentCurrency) || scrRent?.currency || rentFromText?.currency || 'USD';
   const effectiveMode     = propRentParsed?.mode     || n(prop.rentFrequency) || scrRent?.mode   || rentFromText?.mode     || 'per_month';
-  const effectiveSqFt     = fromKeys.squareFeet   ?? scrArea    ?? n(prop.squareFeet) ?? null;
+  const effectiveSqFt       = fromKeys.squareFeet ?? scrArea ?? n(prop.squareFeet) ?? null;
+  // SCRAPPED_AD_DETAILS.propertyCategory wins — it's the label the poster selected in the form.
+  // Fall back to the JSON prop.propertyType if no match is found.
+  const effectivePropertyType =
+    normalizePropertyType(scr.propertyCategory) ||
+    normalizePropertyType(n(prop.propertyType)) ||
+    n(prop.propertyType) ||
+    null;
   // Intent: amenity key wins when present; else metadata; else "list"
   const effectiveIntent   = fromKeys.intent || n(meta.intent) || 'list';
   // Available-from: amenity key can override if not in JSON
@@ -376,7 +409,7 @@ function buildFirestoreDoc(adData) {
       metroArea:       (n(loc.metroArea)  || '').toLowerCase(),
       orderId:         n(pay.orderId),
       paymentId:       n(pay.paymentId),
-      propertyType:    n(prop.propertyType),
+      propertyType:    effectivePropertyType,
       rent:            effectiveRent,
       state:           (n(loc.state)      || '').toLowerCase(),
       stateCode:       n(loc.stateCode),
