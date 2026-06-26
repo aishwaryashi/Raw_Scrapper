@@ -193,6 +193,16 @@ function addOneYear(ts) {
   return Timestamp.fromDate(d);
 }
 
+/** Format a Firestore Timestamp as "YYYY-MM-DD". */
+function toDateStr(ts) {
+  if (!ts) return null;
+  const d = ts.toDate();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 /**
  * Scan a text block for common rent-disclosure patterns and return
  * the first matched dollar string (suitable for passing to parseRentStr).
@@ -353,11 +363,12 @@ function buildFirestoreDoc(adData) {
   // Available-from: amenity key (ISO "YYYY-MM-DD") wins — most reliable source.
   const effectiveAvailFrom = fromKeys.availableFrom || n(avail.availableFrom) || n(scr.availableFrom) || null;
 
-  // ── Timestamps derived from SCRAPPED_AD_DETAILS.postedOn ──────────────────
-  // "May 31, 2026" → Firestore Timestamp → used for createdAt, adactivedate.
-  // adexpirydate = exactly one year after adactivedate.
+  // ── Dates derived from SCRAPPED_AD_DETAILS.postedOn ──────────────────────
+  // createdAt → Firestore Timestamp; adactivedate / adexpirydate → "YYYY-MM-DD".
   const activeTimestamp  = parsePostedOnTimestamp(scr.postedOn);
   const expiryTimestamp  = addOneYear(activeTimestamp);
+  const activeDateStr    = toDateStr(activeTimestamp);
+  const expiryDateStr    = toDateStr(expiryTimestamp);
 
   // ── adId (best available source) ──────────────────────────────────────────
   const adId = adData._adId || n(prop.adId) || n(scr.adIdOnSite) || n(scr.adId) || null;
@@ -418,8 +429,8 @@ function buildFirestoreDoc(adData) {
     // ── Search index ─────────────────────────────────────────────────────────
     _search: {
       adId,
-      adactivedate:    activeTimestamp  || n(meta.adActiveDate),
-      adexpirydate:    expiryTimestamp  || n(meta.adExpiryDate),
+      adactivedate:    activeDateStr    || null,
+      adexpirydate:    expiryDateStr    || null,
       adexpirystatus:  n(meta.adExpiryStatus) || 'active',
       baths:           effectiveBaths,
       beds:            effectiveBeds,
@@ -488,8 +499,8 @@ function buildFirestoreDoc(adData) {
     },
 
     metadata: {
-      adactivedate:   activeTimestamp  || n(meta.adActiveDate),
-      adexpirydate:   expiryTimestamp  || n(meta.adExpiryDate),
+      adactivedate:   activeDateStr    || n(meta.adActiveDate),
+      adexpirydate:   expiryDateStr    || n(meta.adExpiryDate),
       adexpirystatus: n(meta.adExpiryStatus) || 'active',
       adtimezone:     n(meta.timezone) || 'America/New_York',
       category:       n(meta.category) || 'property',
