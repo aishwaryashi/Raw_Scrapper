@@ -325,20 +325,23 @@ function buildFirestoreDoc(adData) {
   //   - 2 items           → { primary: "item1", secondary: ["item2"] }
   //   - 3+ items          → { primary: "item1", secondary: ["item2", "item3", ...] }
   const neighborhoods = (() => {
-    // Merge from both the deep extractor (loc) and SCRAPPED_AD_DETAILS.address
-    const fromLoc = loc.nearbyNeighborhoods;
-    const fromScr = scr.address?.nearbyNeighborhoods;
-
     const toArr = (v) => {
       if (Array.isArray(v)) return v.filter(x => x && x !== 'not_found');
       if (v && typeof v === 'string' && v !== 'not_found') return [v];
       return [];
     };
 
-    // Merge both sources, deduplicated, preserving order
+    // Sources in priority order:
+    //   1. loc.nearbyNeighborhoods        — deep JSON extractor
+    //   2. scr.nearbyNeighborhoods        — SCRAPPED_AD_DETAILS top-level
+    //   3. scr.address.nearbyNeighborhoods — SCRAPPED_AD_DETAILS nested under address
     const seen = new Set();
     const nearbyArr = [];
-    for (const item of [...toArr(fromLoc), ...toArr(fromScr)]) {
+    for (const item of [
+      ...toArr(loc.nearbyNeighborhoods),
+      ...toArr(scr.nearbyNeighborhoods),
+      ...toArr(scr.address?.nearbyNeighborhoods),
+    ]) {
       if (!seen.has(item)) { seen.add(item); nearbyArr.push(item); }
     }
 
