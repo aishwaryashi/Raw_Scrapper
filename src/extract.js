@@ -14,6 +14,7 @@
 
 import { load as cheerioLoad } from 'cheerio';
 import { log } from 'crawlee';
+import { Client as GoogleMapsClient } from '@googlemaps/google-maps-services-js';
 import {
   safeJsonParse,
   deepMerge,
@@ -21,6 +22,33 @@ import {
   extractAdIdFromUrl,
   truncate,
 } from './helpers.js';
+
+// ─── Address parsing constants ────────────────────────────────────────────────
+
+const COUNTRY_MAP = {
+  'USA':           { country: 'United States', countryCode: 'US' },
+  'US':            { country: 'United States', countryCode: 'US' },
+  'UNITED STATES': { country: 'United States', countryCode: 'US' },
+  'UK':            { country: 'United Kingdom', countryCode: 'GB' },
+  'UNITED KINGDOM':{ country: 'United Kingdom', countryCode: 'GB' },
+  'CANADA':        { country: 'Canada',          countryCode: 'CA' },
+  'INDIA':         { country: 'India',           countryCode: 'IN' },
+  'AUSTRALIA':     { country: 'Australia',       countryCode: 'AU' },
+};
+
+const US_STATE_NAMES = {
+  AL:'Alabama',AK:'Alaska',AZ:'Arizona',AR:'Arkansas',CA:'California',
+  CO:'Colorado',CT:'Connecticut',DE:'Delaware',FL:'Florida',GA:'Georgia',
+  HI:'Hawaii',ID:'Idaho',IL:'Illinois',IN:'Indiana',IA:'Iowa',
+  KS:'Kansas',KY:'Kentucky',LA:'Louisiana',ME:'Maine',MD:'Maryland',
+  MA:'Massachusetts',MI:'Michigan',MN:'Minnesota',MS:'Mississippi',MO:'Missouri',
+  MT:'Montana',NE:'Nebraska',NV:'Nevada',NH:'New Hampshire',NJ:'New Jersey',
+  NM:'New Mexico',NY:'New York',NC:'North Carolina',ND:'North Dakota',OH:'Ohio',
+  OK:'Oklahoma',OR:'Oregon',PA:'Pennsylvania',RI:'Rhode Island',SC:'South Carolina',
+  SD:'South Dakota',TN:'Tennessee',TX:'Texas',UT:'Utah',VT:'Vermont',
+  VA:'Virginia',WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming',
+  DC:'District of Columbia',
+};
 
 // ─── Top-level extractor ─────────────────────────────────────────────────────
 
@@ -60,6 +88,14 @@ export async function extractDetailPage({ url, html, apiPayloads = [], inputConf
 
   // Step 4: Build a structured ad record from merged data
   const adRecord = buildAdRecord(url, rawMerged, $, apiPayloads);
+
+  // Step 4.5: Enrich missing location fields via Google Geocoding API.
+  // parseSulekhaFullAddress() already filled city/state/zip from fullAddress (Step 4);
+  // this async step adds lat/lng + any still-missing fields via Google, then
+  // resolves metroArea via TIGERweb CBSA using the returned coordinates.
+  if (adRecord.location && typeof adRecord.location === 'object') {
+    await enrichLocationGeo(adRecord.location, inputConfig.googleMapsApiKey);
+  }
 
   // Step 5: Extract live DOM fields (page-dependent) and merge
   if (page) {
@@ -324,6 +360,197 @@ function getAttr($, selectors, attr) {
   return undefined;
 }
 
+// ─── Sulekha fullAddress parser ───────────────────────────────────────────────
+
+/**
+ * Parse Sulekha's concatenated fullAddress string into structured location fields.
+ *
+ * Handles formats like:
+ *   "3411 Wichita Street, Houston, TX, USA, 77004Houston, TXHarris County View on Map..."
+ *   "Jersey City, NJ, USA, 07302 | Hudson County | ..."
+ */
+function parseSulekhaFullAddress(fullAddress) {
+  if (!fullAddress || typeof fullAddress !== 'string') return {};
+  const text = fullAddress;
+  const result = {};
+
+  // 1. ZIP code (5-digit US, optionally -4 suffix)
+  const zipMatch = text.match(/\b(\d{5})(?:-\d{4})?\b/);
+  if (zipMatch) result.zipCode = zipMatch[1];
+
+  // 2. Country keyword
+  for (const [keyword, info] of Object.entries(COUNTRY_MAP)) {
+    if (new RegExp(`\\b${keyword}\\b`, 'i').test(text)) {
+      result.country = info.country;
+      result.countryCode = info.countryCode;
+      break;
+    }
+  }
+
+  // 3. State code: look for ", XX," or ", XX " pattern (2 uppercase letters)
+  const stateCodeMatch = text.match(/,\s*([A-Z]{2})(?:[,\s]|$)/);
+  if (stateCodeMatch) {
+    const code = stateCodeMatch[1];
+    result.stateCode = code;
+    result.state = US_STATE_NAMES[code] || code;
+  }
+
+  // 4. City: shortest letter-sequence that sits directly before ", StateCode"
+  //    Non-greedy so "Wichita Street, Houston, TX" resolves to "Houston", not "Wichita Street"
+  if (result.stateCode) {
+    const cityRegex = new RegExp(`([A-Za-z][A-Za-z ]{1,35}?),\\s*${result.stateCode}(?:[,\\s]|$)`);
+    const cityMatch = text.match(cityRegex);
+    if (cityMatch) {
+      // If the match spans a comma (e.g. "Street, Houston") take only the last segment
+      const segments = cityMatch[1].trim().split(',');
+      result.city = segments[segments.length - 1].trim();
+    }
+  }
+
+  // 5. County / district
+  const countyMatch = text.match(/\b([A-Z][a-zA-Z]+(?:\s+[A-Za-z]+)*\s+County)\b/);
+  if (countyMatch) result.district = countyMatch[1].trim();
+
+  // 6. Build a normalised formattedAddress
+  const parts = [result.city, result.stateCode, result.zipCode, result.country].filter(Boolean);
+  if (parts.length >= 2) result.formattedAddress = parts.join(', ');
+
+  return result;
+}
+
+// ─── Google Maps Geocoding ────────────────────────────────────────────────────
+
+const _googleMapsClient = new GoogleMapsClient({});
+
+/**
+ * Geocode a ZIP code via the Google Maps Geocoding API.
+ * Returns a structured location object with all address fields + lat/lng.
+ */
+async function geocodeByZipGoogle(zipCode, countryCode, apiKey) {
+  if (!apiKey || !zipCode) return null;
+  const cc = (countryCode || 'US').toUpperCase();
+
+  try {
+    const response = await _googleMapsClient.geocode({
+      params: {
+        address: zipCode,
+        components: `country:${cc}|postal_code:${zipCode}`,
+        key: apiKey,
+      },
+      timeout: 10000,
+    });
+
+    if (response.data.status !== 'OK' || !response.data.results.length) {
+      log.debug(`[GEOCODE] Google returned status=${response.data.status} for zip=${zipCode}`);
+      return null;
+    }
+
+    const place = response.data.results[0];
+    const components = place.address_components || [];
+
+    // Helper: find first component of a given type
+    const get = (type, nameField = 'long_name') => {
+      const comp = components.find(c => c.types.includes(type));
+      return comp ? comp[nameField] : null;
+    };
+
+    const lat = place.geometry?.location?.lat ?? null;
+    const lng = place.geometry?.location?.lng ?? null;
+
+    return {
+      lat,
+      lng,
+      formattedAddress: place.formatted_address || null,
+      // City: "locality" is standard; fall back to sub-city levels for some regions
+      city:        get('locality') || get('sublocality_level_1') || get('administrative_area_level_3') || get('administrative_area_level_2'),
+      locality:    get('neighborhood') || get('sublocality_level_2') || get('sublocality_level_1'),
+      subLocality: get('sublocality_level_1'),
+      district:    get('administrative_area_level_2'),   // county / district
+      state:       get('administrative_area_level_1'),   // full state name
+      stateCode:   get('administrative_area_level_1', 'short_name'),
+      country:     get('country'),
+      countryCode: get('country', 'short_name'),
+      zipCode:     get('postal_code') || zipCode,
+    };
+  } catch (err) {
+    log.warning(`[GEOCODE] Google Geocoding failed for zip=${zipCode}: ${err.message}`);
+    return null;
+  }
+}
+
+// ─── MSA / metro-area lookup via TIGERweb (US only) ─────────────────────────
+// Google Geocoding does not return MSA/CBSA data, so we use TIGERweb for this.
+
+async function resolveMetroAreaFromCoords(lat, lng) {
+  if (lat == null || lng == null) return null;
+  try {
+    const url =
+      `https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/CBSA/MapServer/0/query` +
+      `?geometry=${lng},${lat}&geometryType=esriGeometryPoint&spatialRel=esriSpatialRelIntersects` +
+      `&outFields=NAME&returnGeometry=false&f=json`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const name = data?.features?.[0]?.attributes?.NAME;
+    return name ? name.replace(/\s*Metro(?:politan)?\s+(?:Statistical\s+)?Area\b.*/i, '').trim() : null;
+  } catch (err) {
+    log.debug(`[METRO] TIGERweb failed for (${lat},${lng}): ${err.message}`);
+  }
+  return null;
+}
+
+// ─── Enrich location with Google Geocoding data ───────────────────────────────
+
+/**
+ * Call Google Geocoding API with the location's ZIP code and back-fill any
+ * missing fields (lat, lng, city, state, country, district, metroArea, etc.).
+ * Only overwrites fields that are currently null/missing.
+ *
+ * @param {Object} location   - The location sub-object from adRecord
+ * @param {string} apiKey     - Google Maps API key from actor input
+ */
+async function enrichLocationGeo(location, apiKey) {
+  if (!location || typeof location !== 'object') return;
+  if (!apiKey) {
+    log.debug('[GEOCODE] No googleMapsApiKey provided — skipping geo enrichment.');
+    return;
+  }
+
+  const zip = location.zipCode;
+  const cc  = location.countryCode || 'US';
+
+  if (!zip || zip === 'not_found') return;
+
+  const geo = await geocodeByZipGoogle(zip, cc, apiKey);
+  if (!geo) return;
+
+  log.info(`[GEOCODE] ${zip}/${cc} → lat=${geo.lat}, lng=${geo.lng}, city=${geo.city}, district=${geo.district}`);
+
+  // Back-fill only missing fields — never overwrite values already scraped from the page
+  if (geo.lat  != null && location.latitude  == null) location.latitude  = geo.lat;
+  if (geo.lng  != null && location.longitude == null) location.longitude = geo.lng;
+  if (geo.city         && !location.city)             location.city         = geo.city;
+  if (geo.locality     && !location.locality)         location.locality     = geo.locality;
+  if (geo.subLocality  && !location.subLocality)      location.subLocality  = geo.subLocality;
+  if (geo.district     && !location.district)         location.district     = geo.district;
+  if (geo.state        && !location.state)            location.state        = geo.state;
+  if (geo.stateCode    && !location.stateCode)        location.stateCode    = geo.stateCode;
+  if (geo.country      && !location.country)          location.country      = geo.country;
+  if (geo.countryCode  && !location.countryCode)      location.countryCode  = geo.countryCode;
+  if (geo.zipCode      && !location.zipCode)          location.zipCode      = geo.zipCode;
+  if (geo.formattedAddress && !location.formattedAddress) location.formattedAddress = geo.formattedAddress;
+
+  // Metro area (US only): TIGERweb CBSA lookup using lat/lng from Google
+  const isUS = (geo.countryCode || cc).toUpperCase() === 'US';
+  if (isUS && geo.lat != null && (!location.metroArea || location.metroArea === 'not_found')) {
+    const metro = await resolveMetroAreaFromCoords(geo.lat, geo.lng);
+    if (metro) {
+      location.metroArea = metro;
+      log.info(`[METRO] ${zip} → ${metro}`);
+    }
+  }
+}
+
 // ─── A. Property ─────────────────────────────────────────────────────────────
 
 function extractProperty(ad, raw, $) {
@@ -488,7 +715,7 @@ function extractLocation(ad, raw, $) {
   );
   const locObj = typeof loc === 'object' ? loc : {};
 
-  return {
+  const result = {
     fullAddress: coalesce(
       deepGet(ad, ['fullAddress']),
       deepGet(ad, ['address']),
@@ -584,6 +811,23 @@ function extractLocation(ad, raw, $) {
     ),
     _rawLocationObject: loc,
   };
+
+  // Fallback: parse the concatenated fullAddress string when individual fields
+  // are missing (common with Sulekha pages that don't expose structured location JSON).
+  const fullAddr = result.fullAddress;
+  if (fullAddr && typeof fullAddr === 'string' && fullAddr !== 'not_found') {
+    const parsed = parseSulekhaFullAddress(fullAddr);
+    if (!result.city             && parsed.city)             result.city             = parsed.city;
+    if (!result.country          && parsed.country)          result.country          = parsed.country;
+    if (!result.countryCode      && parsed.countryCode)      result.countryCode      = parsed.countryCode;
+    if (!result.district         && parsed.district)         result.district         = parsed.district;
+    if (!result.zipCode          && parsed.zipCode)          result.zipCode          = parsed.zipCode;
+    if (!result.state            && parsed.state)            result.state            = parsed.state;
+    if (!result.stateCode        && parsed.stateCode)        result.stateCode        = parsed.stateCode;
+    if (!result.formattedAddress && parsed.formattedAddress) result.formattedAddress = parsed.formattedAddress;
+  }
+
+  return result;
 }
 
 // ─── E. Photos ────────────────────────────────────────────────────────────────
@@ -1588,13 +1832,21 @@ export async function extractScrapedAdDetails({ url, html, page }) {
         let sib = h1.nextElementSibling;
         for (let i = 0; i < 5 && sib; i++) {
           const t = (sib.innerText || sib.textContent || '').trim();
-          if (/^[A-Za-z\s]+,\s*[A-Z]{2}/.test(t)) {
-            fullAddress = t.split('|')[0].trim();
-            const csMatch = t.match(/^([^,]+),\s*([A-Z]{2})/);
-            if (csMatch) { city = csMatch[1].trim(); state = csMatch[2].trim(); }
+          // Match both "City, ST," patterns and street-first addresses like "123 Main St, City, ST,"
+          if (/,\s*[A-Z]{2}[,\s]/.test(t) || /\b\d{5}\b/.test(t)) {
+            // fullAddress: everything up to the first pipe or "View on Map" keyword
+            fullAddress = t.split(/\s*\|\s*/)[0].replace(/\s*View on Map.*/i, '').trim();
+            // City: shortest letter-sequence directly before ", StateCode,"
+            const csMatch = t.match(/([A-Za-z][A-Za-z ]{1,35}?),\s*([A-Z]{2})(?:[,\s]|$)/);
+            if (csMatch) {
+              // If match includes comma (e.g. "Street, City") take the last segment
+              const segments = csMatch[1].trim().split(',');
+              city  = segments[segments.length - 1].trim();
+              state = csMatch[2];
+            }
             const zipMatch = t.match(/\b(\d{5})\b/);
             if (zipMatch) zipcode = zipMatch[1];
-            const countyMatch = t.match(/([A-Za-z ]+County)/i);
+            const countyMatch = t.match(/\b([A-Z][a-zA-Z]+(?:\s+[A-Za-z]+)*\s+County)\b/);
             if (countyMatch) county = countyMatch[1].trim();
             const uniMatch = t.match(/(?:University|College)[^:]*?(?:from|:)\s*([^|\n,]{3,60})/i);
             if (uniMatch) nearbyUniversity = uniMatch[1].trim();
@@ -1836,7 +2088,17 @@ export async function extractScrapedAdDetails({ url, html, page }) {
     result.postedOn           = d.postedOn            || null;
     result.adIdOnSite         = d.adIdOnSite          || adId;
     result.description        = d.description         || null;
-    result.address            = d.address;
+    result.address = d.address;
+
+    // Fallback: if DOM extraction missed individual fields, parse them from fullAddress
+    if (result.address.fullAddress) {
+      const parsedAddr = parseSulekhaFullAddress(result.address.fullAddress);
+      if (!result.address.city    && parsedAddr.city)      result.address.city    = parsedAddr.city;
+      if (!result.address.state   && parsedAddr.state)     result.address.state   = parsedAddr.state;
+      if (!result.address.zipcode && parsedAddr.zipCode)   result.address.zipcode = parsedAddr.zipCode;
+      if (!result.address.county  && parsedAddr.district)  result.address.county  = parsedAddr.district;
+    }
+
     result.amenities          = d.amenities;
     result.utilities          = d.utilities;
     result.additionalInfo     = d.additionalInfo;

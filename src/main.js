@@ -46,7 +46,7 @@ const inputConfig = {
   startUrls: input.startUrls?.length
     ? input.startUrls.map((s) => (typeof s === 'string' ? { url: s } : s))
     : [{ url: 'https://indianroommates.sulekha.com/rentals' }],
-  maxItems: input.maxItems ?? 10,
+  maxItems: input.maxItems ?? 2,
   maxConcurrency: input.maxConcurrency ?? 3,
   maxRequestRetries: input.maxRequestRetries ?? 5,
   requestTimeoutSecs: input.requestTimeoutSecs ?? 90,
@@ -59,6 +59,7 @@ const inputConfig = {
   extractLdJson: input.extractLdJson !== false,
   maxPaginationPages: input.maxPaginationPages ?? 0,
   debugMode: input.debugMode ?? false,
+  googleMapsApiKey: input.googleMapsApiKey || null,
 };
 
 if (inputConfig.debugMode) {

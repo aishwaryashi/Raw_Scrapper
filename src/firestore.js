@@ -9,7 +9,7 @@
  */
 
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
-import { getFirestore } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue } from 'firebase-admin/firestore';
 import { log } from 'crawlee';
 
 const ADS_COLLECTION = 'ads';
@@ -103,65 +103,213 @@ function n(v) {
   return v;
 }
 
+// ─── SCRAPPED_AD_DETAILS parsers ──────────────────────────────────────────────
+
+/** "3 Baths" | "1 Bath" → 3 | 1 */
+function parseBathsNum(str) {
+  if (str == null) return null;
+  const m = String(str).match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+/** "4 Beds" | "4+ Beds" | "Studio" → 4 | 4 | 0 */
+function parseBedsNum(str) {
+  if (str == null) return null;
+  if (/studio/i.test(String(str))) return 0;
+  const m = String(str).match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+/**
+ * "$850 /Month" | "₹15,000/month" → { amount, currency, mode }
+ * Handles $, ₹, £, € and per-week / per-day / per-year variants.
+ */
+function parseRentStr(str) {
+  if (!str) return null;
+  const s = String(str);
+  const currency = s.includes('₹') ? 'INR'
+    : s.includes('£') ? 'GBP'
+    : s.includes('€') ? 'EUR'
+    : 'USD';
+  const numMatch = s.replace(/,/g, '').match(/(\d+(?:\.\d+)?)/);
+  if (!numMatch) return null;
+  const amount = parseFloat(numMatch[1]);
+  const mode = /week/i.test(s) ? 'per_week'
+    : /day/i.test(s)  ? 'per_day'
+    : /year/i.test(s) ? 'per_year'
+    : 'per_month';
+  return { amount, currency, mode };
+}
+
+/** "3500 sqft" | "3,500 sq ft" → 3500 */
+function parseAreaNum(str) {
+  if (str == null) return null;
+  const m = String(str).replace(/,/g, '').match(/(\d+(?:\.\d+)?)/);
+  return m ? parseFloat(m[1]) : null;
+}
+
+/**
+ * Scan the amenities key-value object and derive structured values.
+ *
+ * Examples of keys produced by extractAmenities():
+ *   "ad_typeproperty_offered"  → intent = "list"
+ *   "ad_typeproperty_wanted"   → intent = "find"
+ *   "area3500_sqft"            → squareFeet = 3500
+ *   "bedrooms_4+_beds"         → beds = 4
+ *   "available_from31_may_2026"→ availableFrom = "2026-05-31"
+ */
+function extractFromAmenityKeys(amenities) {
+  if (!amenities || typeof amenities !== 'object' || Array.isArray(amenities)) return {};
+  const result = {};
+  const MONTHS = { jan:1,feb:2,mar:3,apr:4,may:5,jun:6,jul:7,aug:8,sep:9,oct:10,nov:11,dec:12 };
+
+  for (const key of Object.keys(amenities)) {
+    if (!amenities[key]) continue;
+
+    // Intent
+    if (/^ad_type.*offered/i.test(key))  { result.intent = 'list'; continue; }
+    if (/^ad_type.*wanted/i.test(key))   { result.intent = 'find'; continue; }
+
+    // Area: "area3500_sqft" → 3500
+    const areaM = key.match(/^area(\d+(?:\.\d+)?)_sqft$/i);
+    if (areaM) { result.squareFeet = parseFloat(areaM[1]); continue; }
+
+    // Beds: "bedrooms_4+_beds" | "bedrooms_2_beds" → 4 | 2
+    const bedsM = key.match(/^bedrooms?[_\s](\d+)/i);
+    if (bedsM) { result.beds = parseInt(bedsM[1], 10); continue; }
+
+    // Available from: "available_from31_may_2026" → "2026-05-31"
+    const dateM = key.match(/^available_from(\d{1,2})_([a-z]+)_(\d{4})$/i);
+    if (dateM) {
+      const day   = parseInt(dateM[1], 10);
+      const month = MONTHS[dateM[2].toLowerCase().slice(0, 3)];
+      const year  = parseInt(dateM[3], 10);
+      if (day && month && year) {
+        result.availableFrom =
+          `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * Build the top-level amenities key-value object that goes into Firestore.
+ * Merges deep-scraped amenities + SCRAPPED_AD_DETAILS amenities array.
+ */
+function buildAmenitiesMap(adData) {
+  const map = {};
+
+  // 1. From extractAmenities() — already key:bool format
+  const deepAmenities = adData.amenities;
+  if (deepAmenities && typeof deepAmenities === 'object' && !Array.isArray(deepAmenities)) {
+    Object.assign(map, deepAmenities);
+  }
+
+  // 2. From SCRAPPED_AD_DETAILS.amenities — array of DOM strings
+  const scrAmenities = adData.SCRAPPED_AD_DETAILS?.amenities;
+  if (Array.isArray(scrAmenities)) {
+    for (const item of scrAmenities) {
+      if (typeof item === 'string' && item.trim()) {
+        // Normalise: lowercase, collapse whitespace → underscores, strip punctuation
+        const key = item.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+        if (key) map[key] = true;
+      }
+    }
+  }
+
+  return map;
+}
+
 /**
  * Transform the scraped adData object into the Firestore document structure.
  */
 function buildFirestoreDoc(adData) {
-  const prop  = adData.property    || {};
-  const loc   = adData.location    || {};
-  const meta  = adData.metadata    || {};
-  const pay   = adData.payment     || {};
-  const priv  = adData.privacy     || {};
-  const prefs = adData.preferences || {};
+  const prop  = adData.property     || {};
+  const loc   = adData.location     || {};
+  const meta  = adData.metadata     || {};
+  const pay   = adData.payment      || {};
+  const priv  = adData.privacy      || {};
+  const prefs = adData.preferences  || {};
   const avail = adData.availability || {};
-  const adId  = adData._adId || n(prop.adId) || null;
+  const scr   = adData.SCRAPPED_AD_DETAILS || {};   // DOM-scraped detail fields
 
-  const photos = (adData.photos?.items || [])
-    .map(p => n(p.url))
-    .filter(Boolean);
+  // ── SCRAPPED_AD_DETAILS: parse string values into numbers ─────────────────
+  const scrRent  = parseRentStr(scr.rent);
+  const scrBaths = parseBathsNum(scr.bathrooms);
+  const scrBeds  = parseBedsNum(scr.bedrooms);
+  const scrArea  = parseAreaNum(scr.areaSqft);
 
-  const amenities = (typeof adData.amenities === 'object' && !Array.isArray(adData.amenities))
-    ? adData.amenities
-    : {};
+  // ── Amenity map + derived values ──────────────────────────────────────────
+  const amenities  = buildAmenitiesMap(adData);
+  const fromKeys   = extractFromAmenityKeys(amenities);
 
+  // ── Effective (merged) scalar values — JSON > SCRAPPED > amenity-derived ──
+  const effectiveBaths    = n(prop.baths)        ?? scrBaths   ?? null;
+  const effectiveBeds     = n(prop.beds)          ?? scrBeds    ?? fromKeys.beds ?? null;
+  const effectiveRent     = n(prop.rentAmount)    ?? scrRent?.amount ?? null;
+  const effectiveCurrency = n(prop.rentCurrency)  || scrRent?.currency || 'USD';
+  const effectiveMode     = n(prop.rentFrequency) || scrRent?.mode     || 'per_month';
+  const effectiveSqFt     = n(prop.squareFeet)    ?? scrArea    ?? fromKeys.squareFeet ?? null;
+  // Intent: amenity key wins when present; else metadata; else "list"
+  const effectiveIntent   = fromKeys.intent || n(meta.intent) || 'list';
+  // Available-from: amenity key can override if not in JSON
+  const effectiveAvailFrom = n(avail.availableFrom) || fromKeys.availableFrom || null;
+
+  // ── adId (best available source) ──────────────────────────────────────────
+  const adId = adData._adId || n(prop.adId) || n(scr.adIdOnSite) || n(scr.adId) || null;
+
+  // ── Photos: main extractor first, SCRAPPED fallback ───────────────────────
+  const photos = (() => {
+    const main = (adData.photos?.items || []).map(p => n(p.url)).filter(Boolean);
+    if (main.length) return main;
+    // SCRAPPED_AD_DETAILS.photos is an array of URL strings
+    return (Array.isArray(scr.photos) ? scr.photos : []).filter(Boolean);
+  })();
+
+  // ── Description ───────────────────────────────────────────────────────────
+  const description = n(adData.description?.fullDescription) || n(scr.description) || null;
+
+  // ── Structural helpers ────────────────────────────────────────────────────
   const stayType = (typeof avail.stayType === 'object' && avail.stayType !== null && avail.stayType !== 'not_found')
-    ? avail.stayType
-    : {};
+    ? avail.stayType : {};
 
   const neighborhoods = (typeof loc.neighborhoods === 'object' && loc.neighborhoods !== null && loc.neighborhoods !== 'not_found')
-    ? loc.neighborhoods
-    : {};
+    ? loc.neighborhoods : {};
 
   const languages = (typeof prefs.languages === 'object' && prefs.languages !== null && prefs.languages !== 'not_found')
-    ? prefs.languages
-    : {};
+    ? prefs.languages : {};
 
   return {
+    // ── Top-level amenities (key:bool map from DOM + deep extraction) ────────
+    amenities,
+
+    // ── Search index ─────────────────────────────────────────────────────────
     _search: {
       adId,
       adactivedate:    n(meta.adActiveDate),
       adexpirydate:    n(meta.adExpiryDate),
       adexpirystatus:  n(meta.adExpiryStatus) || 'active',
-      baths:           n(prop.baths),
-      beds:            n(prop.beds),
+      baths:           effectiveBaths,
+      beds:            effectiveBeds,
       category:        n(meta.category) || 'property',
-      city:            (n(loc.city)      || '').toLowerCase(),
-      country:         (n(loc.country)   || '').toLowerCase(),
+      city:            (n(loc.city)       || '').toLowerCase(),
+      country:         (n(loc.country)    || '').toLowerCase(),
       countryCode:     n(loc.countryCode),
-      currency:        n(prop.rentCurrency) || 'INR',
-      district:        (n(loc.district)  || '').toLowerCase(),
-      intent:          n(meta.intent)    || 'list',
-      locality:        (n(loc.locality)  || '').toLowerCase(),
-      metroArea:       (n(loc.metroArea) || '').toLowerCase(),
+      currency:        effectiveCurrency,
+      district:        (n(loc.district)   || '').toLowerCase(),
+      intent:          effectiveIntent,
+      locality:        (n(loc.locality)   || '').toLowerCase(),
+      metroArea:       (n(loc.metroArea)  || '').toLowerCase(),
       orderId:         n(pay.orderId),
       paymentId:       n(pay.paymentId),
       propertyType:    n(prop.propertyType),
-      rent:            n(prop.rentAmount),
-      state:           (n(loc.state)     || '').toLowerCase(),
+      rent:            effectiveRent,
+      state:           (n(loc.state)      || '').toLowerCase(),
       stateCode:       n(loc.stateCode),
-      status:          n(meta.status)    || 'enable',
+      status:          n(meta.status) || 'enable',
       subLocality:     (n(loc.subLocality) || '').toLowerCase(),
-      title_lowercase: (n(prop.title)    || '').toLowerCase(),
+      title_lowercase: (n(prop.title)     || '').toLowerCase(),
       userid:          FIXED_USER.uid,
       zipcode:         n(loc.zipCode),
     },
@@ -169,22 +317,22 @@ function buildFirestoreDoc(adData) {
     adId,
 
     details: {
-      amenities,
+      amenities: {},          // structured amenities reserved for frontend-posted ads
       availability: {
         daysAvailable: n(avail.daysAvailable),
-        from:          n(avail.availableFrom),
+        from:          effectiveAvailFrom,
         stayType,
         to:            n(avail.availableTo),
       },
-      description: n(adData.description?.fullDescription),
-      openHouse:   { date: null, endTime: null, startTime: null },
+      description,
+      openHouse: { date: null, endTime: null, startTime: null },
       rent: {
-        amount:            n(prop.rentAmount),
-        currency:          n(prop.rentCurrency) || 'INR',
-        deposit:           n(prop.deposit)  ?? 0,
+        amount:            effectiveRent,
+        currency:          effectiveCurrency,
+        deposit:           n(prop.deposit) ?? 0,
         isHidden:          false,
-        isNegotiable:      prop.negotiable  === true,
-        mode:              n(prop.rentFrequency) || 'per_month',
+        isNegotiable:      prop.negotiable === true,
+        mode:              effectiveMode,
         title:             n(prop.title),
         utilitiesIncluded: prop.utilitiesIncluded === true,
       },
@@ -192,7 +340,7 @@ function buildFirestoreDoc(adData) {
         city:             n(loc.city),
         country:          n(loc.country),
         countryCode:      n(loc.countryCode),
-        display:          n(loc.displayAddress) || n(loc.subLocality),
+        display:          n(loc.displayAddress) || n(loc.subLocality) || n(loc.city),
         district:         n(loc.district),
         formattedAddress: n(loc.formattedAddress),
         lat:              n(loc.latitude),
@@ -209,31 +357,32 @@ function buildFirestoreDoc(adData) {
     },
 
     metadata: {
-      adactivedate:  n(meta.adActiveDate),
-      adexpirydate:  n(meta.adExpiryDate),
+      adactivedate:   n(meta.adActiveDate),
+      adexpirydate:   n(meta.adExpiryDate),
       adexpirystatus: n(meta.adExpiryStatus) || 'active',
-      adtimezone:    n(meta.timezone)   || 'Asia/Kolkata',
-      category:      n(meta.category)   || 'property',
-      createdAt:     n(meta.createdAt),
-      intent:        n(meta.intent)     || 'list',
-      orderId:       n(pay.orderId),
-      paymentId:     n(pay.paymentId),
-      role:          FIXED_USER.role,
-      status:        n(meta.status)     || 'enable',
-      updatedAt:     n(meta.updatedAt),
+      adtimezone:     n(meta.timezone) || 'America/New_York',
+      category:       n(meta.category) || 'property',
+      // Firestore server timestamp — set when the document is first written
+      createdAt:      FieldValue.serverTimestamp(),
+      intent:         effectiveIntent,
+      orderId:        n(pay.orderId),
+      paymentId:      n(pay.paymentId),
+      role:           FIXED_USER.role,
+      status:         n(meta.status) || 'enable',
+      updatedAt:      FieldValue.serverTimestamp(),
     },
 
     payment: {
-      currency:    n(pay._raw?.currency) || 'USD',
+      currency:     n(pay._raw?.currency) || 'USD',
       durationDays: n(pay.durationDays),
-      method:      n(pay.paymentMethod),
-      orderId:     n(pay.orderId),
-      paidAmount:  n(pay.paidAmount),
-      paidAt:      n(pay.paidAt),
-      paymentId:   n(pay.paymentId),
-      planId:      n(pay.planId),
-      planName:    n(pay.planName),
-      promoCode:   n(pay.promoCode),
+      method:       n(pay.paymentMethod),
+      orderId:      n(pay.orderId),
+      paidAmount:   n(pay.paidAmount),
+      paidAt:       n(pay.paidAt),
+      paymentId:    n(pay.paymentId),
+      planId:       n(pay.planId),
+      planName:     n(pay.planName),
+      promoCode:    n(pay.promoCode),
     },
 
     photos,
@@ -251,22 +400,22 @@ function buildFirestoreDoc(adData) {
     },
 
     privacy: {
-      hideAddressOnAd: priv.hideAddress      === true,
-      hideEmailOnAd:   priv.hideEmail        === true,
-      hidePhoneOnAd:   priv.hidePhone        === true,
-      onWhatsApp:      priv.whatsappEnabled  === true,
-      sharePhone:      priv.hidePhone        !== true,
+      hideAddressOnAd:  priv.hideAddress     === true,
+      hideEmailOnAd:    priv.hideEmail       === true,
+      hidePhoneOnAd:    priv.hidePhone       === true,
+      onWhatsApp:       priv.whatsappEnabled === true,
+      sharePhone:       priv.hidePhone       !== true,
       showAddressOnMap: priv.mapVisibility   !== false,
     },
 
     propertyDetails: {
       accommodationType: n(prop.accommodationType) || '',
-      baths:        n(prop.baths),
-      beds:         n(prop.beds),
+      baths:        effectiveBaths,
+      beds:         effectiveBeds,
       buildingName: n(prop.buildingName),
       isShared:     false,
       propertyType: n(prop.propertyType),
-      squareFeet:   n(prop.squareFeet),
+      squareFeet:   effectiveSqFt,
     },
 
     user: FIXED_USER,

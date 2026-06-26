@@ -18,8 +18,8 @@
     "maxItems": {
       "title": "Max Items",
       "type": "integer",
-      "description": "Maximum number of rental ads to save (to both dataset and Firestore). Default is 10. Set to 0 for no limit.",
-      "default": 10,
+      "description": "Maximum number of rental ads to save (to both dataset and Firestore). Default is 2. Set to 0 for no limit.",
+      "default": 2,
       "minimum": 0
     },
     "firebaseServiceAccount": {
@@ -112,6 +112,12 @@
       "type": "boolean",
       "description": "Enable verbose logging for debugging.",
       "default": false
+    },
+    "googleMapsApiKey": {
+      "title": "Google Maps API Key",
+      "type": "string",
+      "description": "Google Maps Geocoding API key. Used to enrich scraped ads with lat/lng, city, state, country, district and metroArea from the property's ZIP code. Get it from https://console.cloud.google.com → APIs & Services → Credentials. Requires the Geocoding API to be enabled.",
+      "isSecret": true
     }
   }
 }
