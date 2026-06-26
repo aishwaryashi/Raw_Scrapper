@@ -9,7 +9,7 @@
  */
 
 import { initializeApp, cert, getApps } from 'firebase-admin/app';
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
+import { getFirestore, FieldValue, Timestamp } from 'firebase-admin/firestore';
 import { log } from 'crawlee';
 
 const ADS_COLLECTION = 'ads';
@@ -175,6 +175,25 @@ function normalizePropertyType(raw) {
 }
 
 /**
+ * Parse "May 31, 2026" / "Jun 05, 2026" (SCRAPPED_AD_DETAILS.postedOn) into a
+ * Firestore Timestamp.  Returns null on any parse failure.
+ */
+function parsePostedOnTimestamp(str) {
+  if (!str || typeof str !== 'string') return null;
+  const d = new Date(str.trim());
+  if (isNaN(d.getTime())) return null;
+  return Timestamp.fromDate(d);
+}
+
+/** Return a Firestore Timestamp exactly one year after the given Timestamp. */
+function addOneYear(ts) {
+  if (!ts) return null;
+  const d = ts.toDate();
+  d.setFullYear(d.getFullYear() + 1);
+  return Timestamp.fromDate(d);
+}
+
+/**
  * Scan a text block for common rent-disclosure patterns and return
  * the first matched dollar string (suitable for passing to parseRentStr).
  *
@@ -330,9 +349,15 @@ function buildFirestoreDoc(adData) {
     n(prop.propertyType) ||
     null;
   // Intent: amenity key wins when present; else metadata; else "list"
-  const effectiveIntent   = fromKeys.intent || n(meta.intent) || 'list';
-  // Available-from: amenity key can override if not in JSON
-  const effectiveAvailFrom = n(avail.availableFrom) || fromKeys.availableFrom || null;
+  const effectiveIntent    = fromKeys.intent || n(meta.intent) || 'list';
+  // Available-from: amenity key (ISO "YYYY-MM-DD") wins — most reliable source.
+  const effectiveAvailFrom = fromKeys.availableFrom || n(avail.availableFrom) || n(scr.availableFrom) || null;
+
+  // ── Timestamps derived from SCRAPPED_AD_DETAILS.postedOn ──────────────────
+  // "May 31, 2026" → Firestore Timestamp → used for createdAt, adactivedate.
+  // adexpirydate = exactly one year after adactivedate.
+  const activeTimestamp  = parsePostedOnTimestamp(scr.postedOn);
+  const expiryTimestamp  = addOneYear(activeTimestamp);
 
   // ── adId (best available source) ──────────────────────────────────────────
   const adId = adData._adId || n(prop.adId) || n(scr.adIdOnSite) || n(scr.adId) || null;
@@ -393,8 +418,8 @@ function buildFirestoreDoc(adData) {
     // ── Search index ─────────────────────────────────────────────────────────
     _search: {
       adId,
-      adactivedate:    n(meta.adActiveDate),
-      adexpirydate:    n(meta.adExpiryDate),
+      adactivedate:    activeTimestamp  || n(meta.adActiveDate),
+      adexpirydate:    expiryTimestamp  || n(meta.adExpiryDate),
       adexpirystatus:  n(meta.adExpiryStatus) || 'active',
       baths:           effectiveBaths,
       beds:            effectiveBeds,
@@ -463,13 +488,12 @@ function buildFirestoreDoc(adData) {
     },
 
     metadata: {
-      adactivedate:   n(meta.adActiveDate),
-      adexpirydate:   n(meta.adExpiryDate),
+      adactivedate:   activeTimestamp  || n(meta.adActiveDate),
+      adexpirydate:   expiryTimestamp  || n(meta.adExpiryDate),
       adexpirystatus: n(meta.adExpiryStatus) || 'active',
       adtimezone:     n(meta.timezone) || 'America/New_York',
       category:       n(meta.category) || 'property',
-      // Firestore server timestamp — set when the document is first written
-      createdAt:      FieldValue.serverTimestamp(),
+      createdAt:      activeTimestamp  || FieldValue.serverTimestamp(),
       intent:         effectiveIntent,
       orderId:        n(pay.orderId),
       paymentId:      n(pay.paymentId),
@@ -496,7 +520,9 @@ function buildFirestoreDoc(adData) {
     preferences: {
       ageRange:        n(prefs.ageRange),
       alcoholAllowed:  n(prefs.alcoholAllowed),
-      couplesWelcome:  n(prefs.couplesWelcome),
+      couplesWelcome:  /^yes$/i.test(String(scr.couplesAllowed || ''))
+        ? true
+        : n(prefs.couplesWelcome),
       languages,
       occupation:      n(prefs.occupation),
       pets:            n(prefs.pets),
@@ -524,7 +550,10 @@ function buildFirestoreDoc(adData) {
       squareFeet:   effectiveSqFt,
     },
 
-    user: FIXED_USER,
+    user: {
+      ...FIXED_USER,
+      displayName: scr.postedBy || FIXED_USER.displayName,
+    },
   };
 }
 
