@@ -361,10 +361,93 @@ function buildAmenitiesMap(adData) {
   return map;
 }
 
+// ─── US Metro Area via TIGERweb ──────────────────────────────────────────────
+// Mirrors the exact same two-strategy approach used in the frontend metroArea.js
+// so the stored metroArea value is identical regardless of whether an ad was
+// posted through the app or scraped by this actor.
+
+async function fetchUsMetroAreaByLatLng(lat, lng) {
+  if (lat == null || lng == null) return null;
+
+  const geomJson = JSON.stringify({
+    x: lng, y: lat, spatialReference: { wkid: 4326 },
+  });
+
+  // Strategy A – query CBSA MapServer layers 0-3
+  const CBSA = 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/CBSA/MapServer';
+
+  for (let layerId = 0; layerId <= 3; layerId++) {
+    try {
+      const url = new URL(`${CBSA}/${layerId}/query`);
+      url.searchParams.set('geometry', geomJson);
+      url.searchParams.set('geometryType', 'esriGeometryPoint');
+      url.searchParams.set('spatialRel', 'esriSpatialRelIntersects');
+      url.searchParams.set('outFields', 'NAME,LSAD,GEOID');
+      url.searchParams.set('returnGeometry', 'false');
+      url.searchParams.set('f', 'json');
+
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), 6000);
+      const res = await fetch(url.toString(), { signal: ctrl.signal });
+      clearTimeout(tid);
+
+      const data = await res.json();
+      if (data?.error) { log.debug(`[FIRESTORE] TIGERweb layer ${layerId} error:`, data.error); continue; }
+
+      const name = data?.features?.[0]?.attributes?.NAME;
+      if (name) {
+        log.info(`[FIRESTORE] TIGERweb CBSA layer ${layerId} → "${name}"`);
+        return String(name).trim();
+      }
+    } catch (e) {
+      log.debug(`[FIRESTORE] TIGERweb CBSA layer ${layerId} failed: ${e?.message ?? e}`);
+    }
+  }
+
+  // Strategy B – tigerWMS_Current identify (all layers at once)
+  try {
+    const delta = 0.3;
+    const url = new URL(
+      'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_Current/MapServer/identify',
+    );
+    url.searchParams.set('f', 'json');
+    url.searchParams.set('geometry', geomJson);
+    url.searchParams.set('geometryType', 'esriGeometryPoint');
+    url.searchParams.set('sr', '4326');
+    url.searchParams.set('layers', 'all');
+    url.searchParams.set('tolerance', '0');
+    url.searchParams.set('mapExtent', `${lng - delta},${lat - delta},${lng + delta},${lat + delta}`);
+    url.searchParams.set('imageDisplay', '400,400,96');
+    url.searchParams.set('returnGeometry', 'false');
+
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), 8000);
+    const res = await fetch(url.toString(), { signal: ctrl.signal });
+    clearTimeout(tid);
+
+    const data = await res.json();
+    const msaResult = (data?.results ?? []).find((r) =>
+      /metropolitan statistical|micropolitan statistical|core based statistical/i.test(r.layerName ?? ''),
+    );
+    if (msaResult) {
+      const name = msaResult.attributes?.NAME ?? msaResult.value;
+      if (name) {
+        log.info(`[FIRESTORE] TIGERweb identify → "${name}"`);
+        return String(name).trim();
+      }
+    }
+  } catch (e) {
+    log.debug(`[FIRESTORE] TIGERweb identify failed: ${e?.message ?? e}`);
+  }
+
+  log.warning(`[FIRESTORE] TIGERweb: no MSA found for lat=${lat} lng=${lng}`);
+  return null;
+}
+
 /**
  * Transform the scraped adData object into the Firestore document structure.
  */
-function buildFirestoreDoc(adData) {
+async function buildFirestoreDoc(adData) {
   const prop  = adData.property     || {};
   const loc   = adData.location     || {};
   const meta  = adData.metadata     || {};
@@ -427,6 +510,25 @@ function buildFirestoreDoc(adData) {
   const expiryTimestamp  = addOneYear(activeTimestamp);
   const activeDateStr    = toDateStr(activeTimestamp);
   const expiryDateStr    = toDateStr(expiryTimestamp);
+
+  // ── Metro area: TIGERweb for US, scraped value for all others ────────────
+  // The Sulekha-scraped loc.metroArea value (e.g. "Phoenix-Mesa-AZ") differs
+  // from what the frontend app stores via TIGERweb ("Phoenix-Mesa-Chandler, AZ").
+  // For US ads we call the same Census Bureau ArcGIS endpoint so the stored
+  // text always matches what the homepage metro-area filter expects.
+  let effectiveMetroArea = n(loc.metroArea) || '';
+  if ((n(loc.countryCode) || '').toUpperCase() === 'US') {
+    const lat = typeof n(loc.latitude)  === 'number' ? n(loc.latitude)  : null;
+    const lng = typeof n(loc.longitude) === 'number' ? n(loc.longitude) : null;
+    if (lat != null && lng != null) {
+      try {
+        const tigerMetro = await fetchUsMetroAreaByLatLng(lat, lng);
+        if (tigerMetro) effectiveMetroArea = tigerMetro;
+      } catch (e) {
+        log.warning(`[FIRESTORE] Metro area TIGERweb lookup failed: ${e.message}`);
+      }
+    }
+  }
 
   // ── adId (best available source) ──────────────────────────────────────────
   const adId = adData._adId || n(prop.adId) || n(scr.adIdOnSite) || n(scr.adId) || null;
@@ -530,7 +632,7 @@ function buildFirestoreDoc(adData) {
       district:        (n(loc.district)   || '').toLowerCase(),
       intent:          effectiveIntent,
       locality:        (n(loc.locality)   || '').toLowerCase(),
-      metroArea:       (n(loc.metroArea)  || '').toLowerCase(),
+      metroArea:       effectiveMetroArea.toLowerCase(),
       orderId:         n(pay.orderId),
       paymentId:       n(pay.paymentId),
       propertyType:    effectivePropertyType,
@@ -577,7 +679,7 @@ function buildFirestoreDoc(adData) {
         lat:              n(loc.latitude),
         lng:              n(loc.longitude),
         locality:         n(loc.locality),
-        metroArea:        n(loc.metroArea),
+        metroArea:        effectiveMetroArea || null,
         neighborhoods,
         showOnMap:        priv.mapVisibility !== false && priv.hideAddress !== true,
         state:            n(loc.state),
@@ -701,7 +803,7 @@ export async function saveAdToFirestore(adData) {
       }
 
       // One or more required fields are null — update location + search index.
-      const doc = buildFirestoreDoc(adData);
+      const doc = await buildFirestoreDoc(adData);
       await docRef.update({
         'details.location':  doc.details.location,
         '_search.city':      doc._search.city,
@@ -716,7 +818,7 @@ export async function saveAdToFirestore(adData) {
       return true;
     }
 
-    const doc = buildFirestoreDoc(adData);
+    const doc = await buildFirestoreDoc(adData);
     await docRef.set(doc);
     log.info(`[FIRESTORE] Saved ad ${adId} to "${ADS_COLLECTION}" collection.`);
     return true;
