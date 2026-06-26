@@ -23,6 +23,7 @@ import {
   markSeenInKvs,
 } from './helpers.js';
 import { extractListingPage, extractDetailPage, extractScrapedAdDetails } from './extract.js';
+import { saveAdToFirestore, isFirestoreReady } from './firestore.js';
 
 // ─── Network API capture helper ──────────────────────────────────────────────
 
@@ -183,7 +184,7 @@ export async function handleListing(context, inputConfig, requestQueue) {
 
 // ─── Route: DETAIL ───────────────────────────────────────────────────────────
 
-export async function handleDetail(context, inputConfig, dataset) {
+export async function handleDetail(context, inputConfig, dataset, crawlerRef = {}) {
   const { request, page } = context;
   const { url } = request;
   const { minDelayMs = 2000, maxDelayMs = 7000, interceptApiCalls = true, debugMode = false } = inputConfig;
@@ -259,7 +260,13 @@ export async function handleDetail(context, inputConfig, dataset) {
       page,
     });
 
-    // Check maxItems
+    // Stop saving once the Firestore target is reached
+    if (inputConfig.maxItems > 0 && stats.adsFirestoreSaved >= inputConfig.maxItems) {
+      log.info(`[DETAIL] Firestore target (${inputConfig.maxItems}) already reached. Skipping save.`);
+      return;
+    }
+
+    // Also enforce the dataset maxItems cap as a safety bound
     if (inputConfig.maxItems > 0 && stats.adsScraped >= inputConfig.maxItems) {
       log.info(`[DETAIL] maxItems (${inputConfig.maxItems}) reached. Skipping save.`);
       return;
@@ -284,6 +291,21 @@ export async function handleDetail(context, inputConfig, dataset) {
     // Push to dataset
     await dataset.pushData(adData);
     stats.increment('adsScraped');
+
+    // Save to Firestore (with built-in dedup check — skips if adId already exists)
+    if (isFirestoreReady()) {
+      const saved = await saveAdToFirestore(adData);
+      if (saved) {
+        stats.increment('adsFirestoreSaved');
+        log.info(`[DETAIL] Firestore saves: ${stats.adsFirestoreSaved}/${inputConfig.maxItems > 0 ? inputConfig.maxItems : '∞'}`);
+
+        // Stop the crawler once the Firestore target is reached
+        if (inputConfig.maxItems > 0 && stats.adsFirestoreSaved >= inputConfig.maxItems) {
+          log.info(`[DETAIL] Firestore target of ${inputConfig.maxItems} ads reached — stopping crawler.`);
+          try { await crawlerRef.current?.stop(); } catch {}
+        }
+      }
+    }
 
     log.info(`[DETAIL] ✓ Saved ad: ${adData._adId || 'unknown'} — ${truncate(String(adData.property?.title || ''), 60)}`);
 
@@ -316,9 +338,9 @@ async function autoScroll(page, maxScrolls = 5) {
 /**
  * Build the router map for PlaywrightCrawler.
  */
-export function buildRouter(inputConfig, requestQueue, dataset) {
+export function buildRouter(inputConfig, requestQueue, dataset, crawlerRef = {}) {
   return {
     [LABELS.LISTING]: (ctx) => handleListing(ctx, inputConfig, requestQueue),
-    [LABELS.DETAIL]: (ctx) => handleDetail(ctx, inputConfig, dataset),
+    [LABELS.DETAIL]: (ctx) => handleDetail(ctx, inputConfig, dataset, crawlerRef),
   };
 }

@@ -18,9 +18,15 @@
     "maxItems": {
       "title": "Max Items",
       "type": "integer",
-      "description": "Maximum number of rental ads to scrape. 0 = no limit.",
-      "default": 0,
+      "description": "Maximum number of rental ads to save (to both dataset and Firestore). Default is 10. Set to 0 for no limit.",
+      "default": 10,
       "minimum": 0
+    },
+    "firebaseServiceAccount": {
+      "title": "Firebase Credential (Service Account or Web Config JSON)",
+      "type": "object",
+      "description": "Two options:\n\n OPTION A (Recommended) — Service Account JSON:\n Go to Firebase Console → Project Settings → Service Accounts → Generate new private key. Paste the downloaded JSON here.\n\n OPTION B — Web Config JSON:\n Go to Firebase Console → Project Settings → General → Your apps → npm config snippet. Paste the firebaseConfig object here ({ apiKey, authDomain, projectId, ... }). Note: Option B requires Firestore security rules that permit writes, or set GOOGLE_APPLICATION_CREDENTIALS env var.",
+      "editor": "json"
     },
     "maxConcurrency": {
       "title": "Max Concurrency",

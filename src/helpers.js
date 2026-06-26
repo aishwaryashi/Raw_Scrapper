@@ -27,6 +27,7 @@ export const stats = {
   adsFound: 0,
   adsEnqueued: 0,
   adsScraped: 0,
+  adsFirestoreSaved: 0,
   adsFailed: 0,
   adsSkippedDuplicates: 0,
   apiEndpointsDiscovered: new Set(),
@@ -53,6 +54,7 @@ export const stats = {
       adsFound: this.adsFound,
       adsEnqueued: this.adsEnqueued,
       adsScraped: this.adsScraped,
+      adsFirestoreSaved: this.adsFirestoreSaved,
       adsFailed: this.adsFailed,
       adsSkippedDuplicates: this.adsSkippedDuplicates,
       apiEndpointsDiscovered: [...this.apiEndpointsDiscovered],
@@ -67,6 +69,7 @@ export const stats = {
     log.info(`  Ads found (URLs)         : ${s.adsFound}`);
     log.info(`  Ads enqueued             : ${s.adsEnqueued}`);
     log.info(`  Ads scraped (success)    : ${s.adsScraped}`);
+    log.info(`  Ads saved to Firestore   : ${s.adsFirestoreSaved}`);
     log.info(`  Ads failed               : ${s.adsFailed}`);
     log.info(`  Duplicates skipped       : ${s.adsSkippedDuplicates}`);
     log.info(`  API endpoints discovered : ${s.apiEndpointsDiscovered.length}`);

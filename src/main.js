@@ -32,6 +32,7 @@ import {
   getSeenAdIds,
 } from './helpers.js';
 import { buildRouter } from './routes.js';
+import { initFirestore } from './firestore.js';
 
 // ─── Actor Init ───────────────────────────────────────────────────────────────
 
@@ -45,7 +46,7 @@ const inputConfig = {
   startUrls: input.startUrls?.length
     ? input.startUrls.map((s) => (typeof s === 'string' ? { url: s } : s))
     : [{ url: 'https://indianroommates.sulekha.com/rentals' }],
-  maxItems: input.maxItems ?? 0,
+  maxItems: input.maxItems ?? 10,
   maxConcurrency: input.maxConcurrency ?? 3,
   maxRequestRetries: input.maxRequestRetries ?? 5,
   requestTimeoutSecs: input.requestTimeoutSecs ?? 90,
@@ -82,6 +83,19 @@ if (inputConfig.useProxy) {
   }
 }
 
+// ─── Firestore ────────────────────────────────────────────────────────────────
+
+if (input.firebaseServiceAccount) {
+  try {
+    initFirestore(input.firebaseServiceAccount);
+    log.info('Firestore ready — ads will be saved to the "ads" collection.');
+  } catch (err) {
+    log.warning(`Firestore init failed: ${err.message} — ads will NOT be saved to Firestore.`);
+  }
+} else {
+  log.info('No firebaseServiceAccount provided — Firestore save disabled.');
+}
+
 // ─── Request Queue & Dataset ──────────────────────────────────────────────────
 
 const requestQueue = await RequestQueue.open();
@@ -98,7 +112,9 @@ for (const startUrl of inputConfig.startUrls) {
 
 // ─── Router ───────────────────────────────────────────────────────────────────
 
-const routerMap = buildRouter(inputConfig, requestQueue, dataset);
+// crawlerRef is populated after the crawler is created so handlers can call stop()
+const crawlerRef = { current: null };
+const routerMap = buildRouter(inputConfig, requestQueue, dataset, crawlerRef);
 
 // ─── Browser Launch Options ───────────────────────────────────────────────────
 
@@ -244,6 +260,9 @@ const crawler = new PlaywrightCrawler({
     stats.addError(request.url, `Attempt ${retryCount + 1}: ${error.message}`);
   },
 });
+
+// Wire up the crawler reference so handlers can call crawler.stop()
+crawlerRef.current = crawler;
 
 // ─── Run ─────────────────────────────────────────────────────────────────────
 
