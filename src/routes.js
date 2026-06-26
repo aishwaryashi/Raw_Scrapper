@@ -143,6 +143,18 @@ export async function handleListing(context, inputConfig, requestQueue) {
   // Track current page number in userData
   const currentPage = request.userData?.page || 1;
 
+  // Stop pagination when the Firestore save target is already met
+  if (inputConfig.maxItems > 0 && stats.adsFirestoreSaved >= inputConfig.maxItems) {
+    log.info(`[LISTING] Firestore target (${inputConfig.maxItems}) already reached — stopping pagination.`);
+    return;
+  }
+
+  // Stop pagination when enough detail URLs are already enqueued
+  if (inputConfig.maxItems > 0 && stats.adsEnqueued >= inputConfig.maxItems) {
+    log.info(`[LISTING] maxItems (${inputConfig.maxItems}) detail URLs enqueued — stopping pagination.`);
+    return;
+  }
+
   // Check maxPaginationPages limit
   if (maxPaginationPages > 0 && currentPage >= maxPaginationPages) {
     log.info(`[LISTING] Reached maxPaginationPages (${maxPaginationPages}), stopping pagination.`);
@@ -272,8 +284,6 @@ export async function handleDetail(context, inputConfig, dataset, crawlerRef = {
       return;
     }
 
-    log.info(`[DETAIL] Extraction complete for ${truncate(url, 80)}, pushing to dataset...`);
-
     if (!adData) {
       log.error(`[DETAIL] extractDetailPage returned null/undefined for ${truncate(url, 80)}`);
       stats.increment('adsFailed');
@@ -281,33 +291,50 @@ export async function handleDetail(context, inputConfig, dataset, crawlerRef = {
       return;
     }
 
-    // Extract SCRAPPED_AD_DETAILS and attach as a new top-level field
-    const scrapedAdDetails = await extractScrapedAdDetails({ url, html, page });
-    adData.SCRAPPED_AD_DETAILS = scrapedAdDetails;
+    log.info(`[DETAIL] Extraction complete for ${truncate(url, 80)}`);
+
+    // Extract SCRAPPED_AD_DETAILS — isolated try/catch so a failure here never
+    // blocks the Firestore save that follows.
+    try {
+      const scrapedAdDetails = await extractScrapedAdDetails({ url, html, page });
+      adData.SCRAPPED_AD_DETAILS = scrapedAdDetails;
+    } catch (scrErr) {
+      log.warning(`[DETAIL] extractScrapedAdDetails failed: ${scrErr.message} — proceeding with partial data.`);
+      adData.SCRAPPED_AD_DETAILS = null;
+    }
 
     // Mark this adId as seen so daily re-runs skip it
-    markSeenInKvs(adData._adId || scrapedAdDetails.adId);
+    markSeenInKvs(adData._adId || adData.SCRAPPED_AD_DETAILS?.adId);
 
-    // Push to dataset
-    await dataset.pushData(adData);
-    stats.increment('adsScraped');
+    // Push to dataset — isolated so a dataset error never blocks Firestore
+    try {
+      await dataset.pushData(adData);
+      stats.increment('adsScraped');
+    } catch (dsErr) {
+      log.warning(`[DETAIL] Dataset push failed: ${dsErr.message}`);
+    }
 
-    // Save to Firestore (with built-in dedup check — skips if adId already exists)
+    // Save to Firestore — always attempted even if dataset or SCRAPPED_AD_DETAILS failed
     if (isFirestoreReady()) {
-      const saved = await saveAdToFirestore(adData);
-      if (saved) {
-        stats.increment('adsFirestoreSaved');
-        log.info(`[DETAIL] Firestore saves: ${stats.adsFirestoreSaved}/${inputConfig.maxItems > 0 ? inputConfig.maxItems : '∞'}`);
+      try {
+        const saved = await saveAdToFirestore(adData);
+        if (saved) {
+          stats.increment('adsFirestoreSaved');
+          log.info(`[DETAIL] Firestore saves: ${stats.adsFirestoreSaved}/${inputConfig.maxItems > 0 ? inputConfig.maxItems : '∞'}`);
 
-        // Stop the crawler once the Firestore target is reached
-        if (inputConfig.maxItems > 0 && stats.adsFirestoreSaved >= inputConfig.maxItems) {
-          log.info(`[DETAIL] Firestore target of ${inputConfig.maxItems} ads reached — stopping crawler.`);
-          try { await crawlerRef.current?.stop(); } catch {}
+          // Stop the crawler once the Firestore target is reached
+          if (inputConfig.maxItems > 0 && stats.adsFirestoreSaved >= inputConfig.maxItems) {
+            log.info(`[DETAIL] Firestore target of ${inputConfig.maxItems} ads reached — stopping crawler.`);
+            try { await crawlerRef.current?.stop(); } catch {}
+          }
         }
+      } catch (fsErr) {
+        log.error(`[DETAIL] Firestore save failed for ${adData._adId || url}: ${fsErr.message}`);
+        stats.addError(url, `Firestore: ${fsErr.message}`);
       }
     }
 
-    log.info(`[DETAIL] ✓ Saved ad: ${adData._adId || 'unknown'} — ${truncate(String(adData.property?.title || ''), 60)}`);
+    log.info(`[DETAIL] ✓ Processed ad: ${adData._adId || 'unknown'} — ${truncate(String(adData.property?.title || ''), 60)}`);
 
   } catch (err) {
     apiCapture.detach();
