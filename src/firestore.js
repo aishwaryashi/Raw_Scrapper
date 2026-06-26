@@ -541,8 +541,9 @@ async function buildFirestoreDoc(adData) {
     return (Array.isArray(scr.photos) ? scr.photos : []).filter(Boolean);
   })();
 
-  // ── Description ───────────────────────────────────────────────────────────
+  // ── Description & Title ──────────────────────────────────────────────────
   const description = n(adData.description?.fullDescription) || n(scr.description) || null;
+  const title = n(prop.title) || n(scr.title) || null;
 
   // ── Structural helpers ────────────────────────────────────────────────────
   const stayType = (typeof avail.stayType === 'object' && avail.stayType !== null && avail.stayType !== 'not_found')
@@ -658,6 +659,7 @@ async function buildFirestoreDoc(adData) {
         to:            '2100-12-31',
       },
       description,
+      title,
       openHouse: { date: null, endTime: null, startTime: null },
       rent: {
         amount:            effectiveRent,
