@@ -295,26 +295,8 @@ function buildAdRecord(url, raw, $, apiPayloads) {
     // ── G. Preferences ────────────────────────────────────────────
     preferences: extractPreferences(adNode, raw, $),
 
-    // ── H. Poster / User ─────────────────────────────────────────
-    poster: extractPoster(adNode, raw, $),
-
-    // ── I. Payment ────────────────────────────────────────────────
-    payment: extractPayment(adNode, raw),
-
-    // ── J. Metadata ───────────────────────────────────────────────
+    // ── H. Metadata ───────────────────────────────────────────────
     metadata: extractMetadata(adNode, raw, $, url),
-
-    // ── K. Privacy Settings ───────────────────────────────────────
-    privacy: extractPrivacy(adNode, raw),
-
-    // ── L. SEO / LD+JSON ─────────────────────────────────────────
-    structuredData: extractStructuredDataSection(raw, $),
-
-    // ── M. API Payloads captured ──────────────────────────────────
-    capturedApiEndpoints: (apiPayloads || []).map((p) => p.url).filter(Boolean),
-
-    // ── N. Full raw data (future-proof) ──────────────────────────
-    _rawData: raw,
   };
 }
 
@@ -790,16 +772,6 @@ function extractProperty(ad, raw, $) {
       deepGet(ad, ['role']),
       deepGet(ad, ['sellerType']),
     ),
-    // dynamic extra fields at property level
-    _extra: extractDynamicFields(ad, [
-      'adId', 'id', 'listingId', 'title', 'adTitle', 'heading', 'listingUrl', 'url', 'canonicalUrl',
-      'propertyType', 'type', 'accommodationType', 'accomodationType', 'roomType', 'buildingName',
-      'beds', 'bedrooms', 'noOfBedrooms', 'bedroom', 'baths', 'bathrooms', 'noOfBathrooms', 'bathroom',
-      'squareFeet', 'sqft', 'area', 'builtupArea', 'rent', 'rentAmount', 'price', 'amount', 'monthlyRent',
-      'currency', 'rentCurrency', 'priceCurrency', 'deposit', 'securityDeposit', 'depositAmount',
-      'rentFrequency', 'frequency', 'billingCycle', 'utilitiesIncluded', 'utilities', 'utilityIncluded',
-      'negotiable', 'isNegotiable', 'priceNegotiable', 'postedBy', 'ownerType', 'role', 'sellerType',
-    ]),
   };
 }
 
@@ -1815,7 +1787,6 @@ export async function extractScrapedAdDetails({ url, html, page }) {
     adId,
     sourceUrl: url,
     title: null,
-    breadcrumb: [],
     adType: null,
     propertyCategory: null,
     bedrooms: null,
@@ -1970,10 +1941,6 @@ export async function extractScrapedAdDetails({ url, html, page }) {
 
       // ── Title & Breadcrumb ────────────────────────────────────────────────
       const title = getText('h1') || getText('[class*="ad-title"]') || getText('[class*="listing-title"]');
-
-      const breadcrumb = [...document.querySelectorAll(
-        '[class*="breadcrumb"] a, [class*="breadcrumb"] span, nav ol li a, nav ol li span, [aria-label="breadcrumb"] a'
-      )].map(el => (el.innerText || el.textContent || '').trim()).filter(Boolean);
 
       // ── Detail grid ───────────────────────────────────────────────────────
       const grid = extractGrid();
@@ -2224,7 +2191,7 @@ export async function extractScrapedAdDetails({ url, html, page }) {
       const emailMatch = bodyText.match(/[\w.+\-]+@[\w\-]+\.[a-z]{2,}/i);
 
       return {
-        title, breadcrumb, grid, postedOn, adIdOnSite,
+        title, grid, postedOn, adIdOnSite,
         postedBy: grid.postedBy || postedByFromText,
         description,
         address: { fullAddress, city, state, zipcode, county, nearbyUniversity, nearbyNeighborhoods },
@@ -2238,7 +2205,6 @@ export async function extractScrapedAdDetails({ url, html, page }) {
     const g = d.grid || {};
 
     result.title              = d.title;
-    result.breadcrumb         = d.breadcrumb;
     result.adType             = g.adType             || null;
     result.propertyCategory   = g.propertyCategory   || null;
     result.bedrooms           = g.bedrooms            || null;
