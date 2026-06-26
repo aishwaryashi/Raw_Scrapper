@@ -117,6 +117,7 @@
       "title": "Google Maps API Key",
       "type": "string",
       "description": "Google Maps Geocoding API key. Used to enrich scraped ads with lat/lng, city, state, country, district and metroArea from the property's ZIP code. Get it from https://console.cloud.google.com → APIs & Services → Credentials. Requires the Geocoding API to be enabled.",
+      "editor": "textfield",
       "isSecret": true
     }
   }
