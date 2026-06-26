@@ -4,7 +4,7 @@
 		"APIFY_DISABLE_OUTDATED_WARNING": "1"
 	},
 	"name": "raw-sulekha-rentals-scraper",
-	"version": "0.34",
+	"version": "0.35",
 	"buildTag": "latest",
 	"input": "../input_schema.json"
 }

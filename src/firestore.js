@@ -639,7 +639,7 @@ async function buildFirestoreDoc(adData) {
       rent:            effectiveRent,
       state:           (n(loc.state)      || '').toLowerCase(),
       stateCode:       n(loc.stateCode),
-      status:          n(meta.status) || 'enable',
+      status:          n(meta.status) || 'active',
       subLocality:     (n(loc.subLocality) || '').toLowerCase(),
       title_lowercase: (n(prop.title)     || '').toLowerCase(),
       userid:          FIXED_USER.uid,
@@ -700,7 +700,7 @@ async function buildFirestoreDoc(adData) {
       orderId:        n(pay.orderId),
       paymentId:      n(pay.paymentId),
       role:           FIXED_USER.role,
-      status:         n(meta.status) || 'enable',
+      status:         n(meta.status) || 'active',
       updatedAt:      FieldValue.serverTimestamp(),
     },
 
