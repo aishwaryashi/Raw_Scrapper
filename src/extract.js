@@ -371,7 +371,15 @@ function getAttr($, selectors, attr) {
  */
 function parseSulekhaFullAddress(fullAddress) {
   if (!fullAddress || typeof fullAddress !== 'string') return {};
-  const text = fullAddress;
+
+  // Sulekha JSON stores address parts concatenated without spaces, e.g.:
+  //   "07307Jersey" (zip directly followed by city name)
+  //   "NJHudson"    (state code directly followed by county/city name)
+  // Insert spaces at these boundaries before running any regex.
+  const text = fullAddress
+    .replace(/(\d{5})([A-Za-z])/g, '$1 $2')         // "07307Jersey" → "07307 Jersey"
+    .replace(/\b([A-Z]{2})([A-Z][a-z])/g, '$1 $2'); // "NJHudson"    → "NJ Hudson"
+
   const result = {};
 
   // 1. ZIP code (5-digit US, optionally -4 suffix)
@@ -407,8 +415,9 @@ function parseSulekhaFullAddress(fullAddress) {
     }
   }
 
-  // 5. County / district
-  const countyMatch = text.match(/\b([A-Z][a-zA-Z]+(?:\s+[A-Za-z]+)*\s+County)\b/);
+  // 5. County / district — first word must start uppercase+lowercase (proper noun),
+  //    which excludes 2-letter state codes like "NJ" or "TX".
+  const countyMatch = text.match(/\b([A-Z][a-z][a-zA-Z]*(?:\s+[A-Za-z]+)*\s+County)\b/);
   if (countyMatch) result.district = countyMatch[1].trim();
 
   // 6. Build a normalised formattedAddress
@@ -478,25 +487,118 @@ async function geocodeByZipGoogle(zipCode, countryCode, apiKey) {
   }
 }
 
+// ─── Nominatim (OpenStreetMap) Geocoding — free fallback, no API key needed ──
+
+async function geocodeByZipNominatim(zipCode, countryCode) {
+  if (!zipCode) return null;
+  const cc = (countryCode || 'US').toLowerCase();
+
+  try {
+    const url =
+      `https://nominatim.openstreetmap.org/search` +
+      `?postalcode=${encodeURIComponent(zipCode)}` +
+      `&countrycodes=${cc}` +
+      `&format=json&limit=1&addressdetails=1`;
+
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'SulekhaRentalsScraper/1.0' },
+      signal: AbortSignal.timeout(12000),
+    });
+
+    if (!res.ok) {
+      log.debug(`[NOMINATIM] HTTP ${res.status} for zip=${zipCode}`);
+      return null;
+    }
+
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) {
+      log.debug(`[NOMINATIM] No results for zip=${zipCode}`);
+      return null;
+    }
+
+    const place = data[0];
+    const addr  = place.address || {};
+
+    // "ISO3166-2-lvl4": "US-NJ" → stateCode "NJ"
+    const iso = addr['ISO3166-2-lvl4'] || '';
+    const stateCode = iso.includes('-') ? iso.split('-').pop() : null;
+
+    const geo = {
+      lat:             parseFloat(place.lat)  || null,
+      lng:             parseFloat(place.lon)  || null,
+      city:            addr.city || addr.town || addr.village || addr.municipality || null,
+      locality:        addr.neighbourhood || addr.suburb || null,
+      district:        addr.county || null,
+      state:           addr.state || null,
+      stateCode,
+      country:         addr.country || null,
+      countryCode:     addr.country_code ? addr.country_code.toUpperCase() : null,
+      zipCode:         addr.postcode || zipCode,
+      formattedAddress: place.display_name || null,
+    };
+
+    log.info(`[NOMINATIM] ${zipCode}/${cc.toUpperCase()} → lat=${geo.lat}, lng=${geo.lng}, city=${geo.city}, district=${geo.district}`);
+    return geo;
+  } catch (err) {
+    log.warning(`[NOMINATIM] Geocoding failed for zip=${zipCode}: ${err.message}`);
+    return null;
+  }
+}
+
 // ─── MSA / metro-area lookup via TIGERweb (US only) ─────────────────────────
 // Google Geocoding does not return MSA/CBSA data, so we use TIGERweb for this.
 
 async function resolveMetroAreaFromCoords(lat, lng) {
   if (lat == null || lng == null) return null;
   try {
+    // inSR=4326 tells ArcGIS that coordinates are WGS84 (standard lat/lng).
+    // Without it the spatial query silently returns no features.
     const url =
       `https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/CBSA/MapServer/0/query` +
-      `?geometry=${lng},${lat}&geometryType=esriGeometryPoint&spatialRel=esriSpatialRelIntersects` +
-      `&outFields=NAME&returnGeometry=false&f=json`;
-    const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
-    if (!res.ok) return null;
+      `?geometry=${lng},${lat}&geometryType=esriGeometryPoint&inSR=4326` +
+      `&spatialRel=esriSpatialRelIntersects&outFields=NAME&returnGeometry=false&f=json`;
+    const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
+    if (!res.ok) {
+      log.warning(`[METRO] TIGERweb HTTP ${res.status} for (${lat},${lng})`);
+      return null;
+    }
     const data = await res.json();
     const name = data?.features?.[0]?.attributes?.NAME;
-    return name ? name.replace(/\s*Metro(?:politan)?\s+(?:Statistical\s+)?Area\b.*/i, '').trim() : null;
+    if (name) {
+      // Strip trailing "Metropolitan Statistical Area" / "Metro Division" suffix
+      const clean = name.replace(/,?\s*Metro(?:politan)?\s+(?:Statistical\s+)?(?:Area|Division)\b.*/i, '').trim();
+      log.info(`[METRO] (${lat},${lng}) → "${clean}"`);
+      return clean;
+    }
+    log.debug(`[METRO] TIGERweb returned no CBSA feature for (${lat},${lng})`);
   } catch (err) {
-    log.debug(`[METRO] TIGERweb failed for (${lat},${lng}): ${err.message}`);
+    log.warning(`[METRO] TIGERweb failed for (${lat},${lng}): ${err.message}`);
   }
   return null;
+}
+
+// ─── Reverse geocode for locality / neighbourhood ─────────────────────────────
+
+async function getLocalityFromCoords(lat, lng) {
+  if (lat == null || lng == null) return null;
+  try {
+    // zoom=14 = neighbourhood level in Nominatim
+    const url = `https://nominatim.openstreetmap.org/reverse` +
+      `?lat=${lat}&lon=${lng}&format=json&zoom=14&addressdetails=1`;
+    const res = await fetch(url, {
+      headers: { 'User-Agent': 'SulekhaRentalsScraper/1.0' },
+      signal: AbortSignal.timeout(10000),
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    const addr = data.address || {};
+    const locality = addr.neighbourhood || addr.suburb || addr.city_district || null;
+    if (locality) log.info(`[LOCALITY] (${lat},${lng}) → "${locality}"`);
+    return locality;
+  } catch (err) {
+    log.debug(`[LOCALITY] Reverse geocode failed for (${lat},${lng}): ${err.message}`);
+    return null;
+  }
 }
 
 // ─── Enrich location with Google Geocoding data ───────────────────────────────
@@ -511,20 +613,22 @@ async function resolveMetroAreaFromCoords(lat, lng) {
  */
 async function enrichLocationGeo(location, apiKey) {
   if (!location || typeof location !== 'object') return;
-  if (!apiKey) {
-    log.debug('[GEOCODE] No googleMapsApiKey provided — skipping geo enrichment.');
-    return;
-  }
 
   const zip = location.zipCode;
   const cc  = location.countryCode || 'US';
 
   if (!zip || zip === 'not_found') return;
 
-  const geo = await geocodeByZipGoogle(zip, cc, apiKey);
+  // Try Google Geocoding first (most accurate); fall back to Nominatim (free, no key needed).
+  let geo = null;
+  if (apiKey) {
+    geo = await geocodeByZipGoogle(zip, cc, apiKey);
+    if (!geo) log.warning(`[GEOCODE] Google Geocoding returned no result for zip=${zip} — falling back to Nominatim.`);
+  }
+  if (!geo) {
+    geo = await geocodeByZipNominatim(zip, cc);
+  }
   if (!geo) return;
-
-  log.info(`[GEOCODE] ${zip}/${cc} → lat=${geo.lat}, lng=${geo.lng}, city=${geo.city}, district=${geo.district}`);
 
   // Back-fill only missing fields — never overwrite values already scraped from the page
   if (geo.lat  != null && location.latitude  == null) location.latitude  = geo.lat;
@@ -540,14 +644,18 @@ async function enrichLocationGeo(location, apiKey) {
   if (geo.zipCode      && !location.zipCode)          location.zipCode      = geo.zipCode;
   if (geo.formattedAddress && !location.formattedAddress) location.formattedAddress = geo.formattedAddress;
 
-  // Metro area (US only): TIGERweb CBSA lookup using lat/lng from Google
+  // locality: ZIP-level geocoding doesn't return neighbourhood — reverse geocode lat/lng for it.
+  const resolvedLat = location.latitude  ?? geo.lat;
+  const resolvedLng = location.longitude ?? geo.lng;
+  if (!location.locality && resolvedLat != null) {
+    location.locality = await getLocalityFromCoords(resolvedLat, resolvedLng);
+  }
+
+  // metroArea (US only): TIGERweb CBSA lookup using the resolved lat/lng.
   const isUS = (geo.countryCode || cc).toUpperCase() === 'US';
-  if (isUS && geo.lat != null && (!location.metroArea || location.metroArea === 'not_found')) {
-    const metro = await resolveMetroAreaFromCoords(geo.lat, geo.lng);
-    if (metro) {
-      location.metroArea = metro;
-      log.info(`[METRO] ${zip} → ${metro}`);
-    }
+  if (isUS && resolvedLat != null && (!location.metroArea || location.metroArea === 'not_found')) {
+    const metro = await resolveMetroAreaFromCoords(resolvedLat, resolvedLng);
+    if (metro) location.metroArea = metro;
   }
 }
 

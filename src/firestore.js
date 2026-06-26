@@ -447,8 +447,27 @@ export async function saveAdToFirestore(adData) {
     const existing = await docRef.get();
 
     if (existing.exists) {
-      log.info(`[FIRESTORE] Ad ${adId} already exists in Firestore — duplicate, skipping.`);
-      return false;
+      // If the existing document already has geocoded coords, it's a true duplicate.
+      const existingLat = existing.data()?.details?.location?.lat;
+      if (existingLat != null) {
+        log.info(`[FIRESTORE] Ad ${adId} already exists with geocoded data — skipping.`);
+        return false;
+      }
+
+      // Document exists but lat/lng are null — update location + search fields with newly geocoded data.
+      const doc = buildFirestoreDoc(adData);
+      await docRef.update({
+        'details.location':  doc.details.location,
+        '_search.city':      doc._search.city,
+        '_search.district':  doc._search.district,
+        '_search.locality':  doc._search.locality,
+        '_search.metroArea': doc._search.metroArea,
+        '_search.stateCode': doc._search.stateCode,
+        '_search.zipcode':   doc._search.zipcode,
+        'metadata.updatedAt': FieldValue.serverTimestamp(),
+      });
+      log.info(`[FIRESTORE] Updated ad ${adId} — backfilled geocoded location fields.`);
+      return true;
     }
 
     const doc = buildFirestoreDoc(adData);
