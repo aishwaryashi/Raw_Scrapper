@@ -1687,12 +1687,26 @@ export function extractListingPage(html, pageUrl) {
     }
   });
 
-  // Detect next page URL
-  // Common patterns: rel=next, "Next", pagination links with page=N
-  const nextEl = $('a[rel="next"], a:contains("Next"), a:contains("»"), [class*="next"] a, [class*="pagination"] a').filter((_, el) => {
+  // Detect next page URL.
+  // IMPORTANT: match the "next" control specifically (rel=next, or anchor text
+  // "»"/"Next") rather than any link inside a `[class*="pagination"]` container —
+  // that container also holds the numbered page links (1, 2, 3...), and the "1"
+  // link (pointing back to the current page) would otherwise be picked first,
+  // making nextPageUrl equal to the current page and silently killing pagination.
+  let nextEl = $('a[href]').filter((_, el) => {
     const href = $(el).attr('href');
-    return !!href && href !== '#';
+    if (!href || href === '#') return false;
+    return ($(el).attr('rel') || '').toLowerCase() === 'next';
   }).first();
+
+  if (!nextEl.length) {
+    nextEl = $('a[href]').filter((_, el) => {
+      const href = $(el).attr('href');
+      if (!href || href === '#') return false;
+      const text = $(el).text().trim();
+      return text === '»' || /^next$/i.test(text);
+    }).first();
+  }
 
   if (nextEl.length) {
     try {

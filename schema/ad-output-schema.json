@@ -1,0 +1,383 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://internal/schema/sulekha-ad-output-schema.json",
+  "title": "Sulekha Rental Ad — Scraper Output Schema",
+  "description": "Canonical document shape a scraper must produce for each Sulekha rental ad before it is saved to our database. Covers listing crawl/pagination behavior, the ad_type -> intent mapping rule, the intent-conditional object shape (preferences+propertyDetails for 'list' vs seeker+roomDetails for 'find'), and the full enum reference.",
+
+  "x-crawlConfig": {
+    "site": "https://indianroommates.sulekha.com",
+    "listingPageExample": "https://indianroommates.sulekha.com/offered_rentals_in_new-york-metro-area",
+    "goal": "Scrape every ad on a listing page, then follow pagination and repeat, until there are no more ads / no more next-page link (i.e. 'max item not found').",
+    "pagination": {
+      "description": "Each listing page shows a page of ads plus a 'Displaying X - Y of TOTAL' count and numbered page links (1, 2, 3 ... Last) at the bottom.",
+      "steps": [
+        "1. Load the listing page HTML.",
+        "2. Extract every ad detail-page URL on the page (one per ad card).",
+        "3. Extract the reported total ad count (e.g. 'Displaying 1 - 30 of 66') if present.",
+        "4. Extract the next-page URL (increment ?page=N, or follow the 'Next'/numbered pagination link).",
+        "5. Visit each detail URL and scrape the full ad object per this schema.",
+        "6. Repeat from step 1 on the next page.",
+        "7. Stop paginating when ANY of: (a) the current page returns 0 new ad URLs, (b) there is no next-page link / the next-page link is identical to the current page (loop guard), (c) the running count of scraped ads reaches the configured maxItems (0 = unlimited), (d) the running count reaches the reported TOTAL from step 3."
+      ],
+      "dedup": "Deduplicate by adId (parsed from the trailing _<digits> segment of the detail URL) so an ad seen on two different pages is only scraped/saved once."
+    },
+    "adTypeIntentMapping": {
+      "description": "Every ad detail page exposes an 'Ad Type' field with value 'Property Offered' or 'Property Wanted'. When scraped this normalizes to a boolean-keyed field such as ad_typeproperty_offered / ad_typeproperty_wanted. Map that to metadata.intent.",
+      "rules": [
+        { "scrapedField": "ad_typeproperty_offered", "value": true, "intent": "list", "meaning": "Owner is offering/listing a place -> use the 'list' branch of this schema (propertyDetails + preferences)." },
+        { "scrapedField": "ad_typeproperty_wanted", "value": true, "intent": "find", "meaning": "Someone is seeking/looking for a place -> use the 'find' branch of this schema (roomDetails + seeker)." }
+      ]
+    }
+  },
+
+  "type": "object",
+  "required": ["adId", "metadata", "user", "location", "details", "privacy", "photos", "_search"],
+  "properties": {
+    "adId": {
+      "type": "string",
+      "description": "Unique ad identifier. Source scraper may reuse the site's own numeric ad id, or mint its own (example shows a timestamp-style id)."
+    },
+
+    "metadata": {
+      "type": "object",
+      "required": ["status", "adexpirystatus", "adtimezone", "admetroarea", "adactivedate", "adexpirydate", "intent", "category", "role"],
+      "properties": {
+        "status": { "$ref": "#/$defs/enums/status" },
+        "adexpirystatus": { "$ref": "#/$defs/enums/adexpirystatus" },
+        "adtimezone": { "type": "string", "example": "America/New_York" },
+        "admetroarea": { "type": "string", "description": "Slug form of the metro area, e.g. 'new-york-metro-area'." },
+        "adactivedate": { "type": "string", "format": "date" },
+        "adexpirydate": { "type": "string", "format": "date" },
+        "intent": { "$ref": "#/$defs/enums/intent" },
+        "category": { "$ref": "#/$defs/enums/category" },
+        "role": { "type": "string", "description": "'I am the property owner' for listings, 'I am an individual' for seekers." }
+      }
+    },
+
+    "user": {
+      "type": "object",
+      "required": ["uid", "displayName", "isVerified", "role"],
+      "properties": {
+        "uid": { "type": "string" },
+        "displayName": { "type": ["string", "null"] },
+        "email": { "type": ["string", "null"] },
+        "phone": { "type": ["string", "null"] },
+        "isVerified": { "type": "boolean" },
+        "role": { "type": "string" },
+        "business": { "type": ["string", "null"] }
+      }
+    },
+
+    "location": {
+      "type": "object",
+      "properties": {
+        "display": { "type": ["string", "null"] },
+        "formattedAddress": { "type": ["string", "null"] },
+        "street": { "type": ["string", "null"] },
+        "city": { "type": ["string", "null"] },
+        "locality": { "type": ["string", "null"] },
+        "subLocality": { "type": ["string", "null"] },
+        "district": { "type": ["string", "null"] },
+        "state": { "type": ["string", "null"] },
+        "stateCode": { "type": ["string", "null"] },
+        "country": { "type": ["string", "null"] },
+        "countryCode": { "type": ["string", "null"] },
+        "metroArea": { "type": ["string", "null"] },
+        "zipcode": { "type": ["string", "null"] },
+        "lat": { "type": ["number", "null"] },
+        "lng": { "type": ["number", "null"] },
+        "neighborhoods": {
+          "type": "object",
+          "properties": {
+            "primary": { "type": ["string", "null"] },
+            "secondary": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "showOnMap": { "type": "boolean" }
+      }
+    },
+
+    "details": {
+      "type": "object",
+      "properties": {
+        "title": { "type": ["string", "null"] },
+        "description": { "type": ["string", "null"] },
+        "rent": {
+          "type": "object",
+          "properties": {
+            "amount": { "type": "number", "description": "0 for seeker (find) ads that don't post a budget." },
+            "currency": { "type": "string", "default": "USD" },
+            "mode": { "type": "string", "enum": ["per_day", "per_week", "per_month", "per_year"], "default": "per_month" },
+            "isNegotiable": { "type": "boolean" },
+            "isHidden": { "type": "boolean" },
+            "utilitiesIncluded": { "type": "boolean" },
+            "deposit": { "type": "number" }
+          }
+        },
+        "availability": {
+          "type": "object",
+          "properties": {
+            "from": { "type": ["string", "null"], "format": "date" },
+            "to": { "type": "string", "format": "date", "default": "2100-12-31" },
+            "stayType": {
+              "type": "object",
+              "properties": {
+                "short": { "type": "boolean" },
+                "long": { "type": "boolean" }
+              }
+            },
+            "daysAvailable": { "type": ["string", "null"] }
+          }
+        },
+        "amenities": { "type": "array", "items": { "$ref": "#/$defs/enums/amenity" } },
+        "utilities": { "type": "array", "items": { "$ref": "#/$defs/enums/utility" } },
+        "furnishing": { "$ref": "#/$defs/enums/furnishing" },
+        "openHouse": {
+          "type": "object",
+          "properties": {
+            "date": { "type": "string" },
+            "startTime": { "type": "string" },
+            "endTime": { "type": "string" }
+          }
+        }
+      }
+    },
+
+    "privacy": {
+      "type": "object",
+      "properties": {
+        "showAddressOnMap": { "type": "boolean" },
+        "hideAddressOnAd": { "type": "boolean" },
+        "hidePhoneOnAd": { "type": "boolean" },
+        "hideEmailOnAd": { "type": "boolean" },
+        "onWhatsApp": { "type": "boolean" },
+        "sharePhone": { "type": "boolean" }
+      }
+    },
+
+    "photos": { "type": "array", "items": { "type": "string", "format": "uri" } },
+
+    "propertyDetails": {
+      "type": "object",
+      "description": "Present ONLY when metadata.intent = 'list'. Omit entirely (not null) when intent = 'find'.",
+      "properties": {
+        "propertyType": { "$ref": "#/$defs/enums/propertyType" },
+        "accommodationType": { "type": "string" },
+        "squareFeet": { "type": ["number", "null"] },
+        "beds": { "type": ["number", "null"] },
+        "baths": { "type": ["number", "null"] },
+        "buildingName": { "type": ["string", "null"] },
+        "isShared": { "type": "boolean" }
+      }
+    },
+
+    "roomDetails": {
+      "type": "object",
+      "description": "Present ONLY when metadata.intent = 'find'. Omit entirely (not null) when intent = 'list'.",
+      "properties": {
+        "bathType": { "type": "string" },
+        "bathPreference": { "type": "string" },
+        "genderPreference": { "$ref": "#/$defs/enums/genderPreference" },
+        "accommodates": { "type": "string" },
+        "accommodationType": { "type": "string" }
+      }
+    },
+
+    "preferences": {
+      "type": "object",
+      "description": "Present ONLY when metadata.intent = 'list' — what the owner wants in a tenant. Omit entirely when intent = 'find'.",
+      "properties": {
+        "occupation": { "$ref": "#/$defs/enums/occupation" },
+        "smoking": { "$ref": "#/$defs/enums/smoking" },
+        "pets": { "$ref": "#/$defs/enums/pets" },
+        "vegetarian": { "$ref": "#/$defs/enums/vegetarian" },
+        "ageRange": { "$ref": "#/$defs/enums/ageRange" },
+        "preferredGender": { "$ref": "#/$defs/enums/yesNoGender" },
+        "couplesWelcome": { "$ref": "#/$defs/enums/yesNo" },
+        "alcoholAllowed": { "$ref": "#/$defs/enums/yesNo" },
+        "languages": { "type": "array", "items": { "$ref": "#/$defs/enums/language" } }
+      }
+    },
+
+    "seeker": {
+      "type": "object",
+      "description": "Present ONLY when metadata.intent = 'find' — who the seeker is. Omit entirely when intent = 'list'.",
+      "properties": {
+        "age": { "type": ["number", "null"] },
+        "gender": { "$ref": "#/$defs/enums/seekerGender" },
+        "occupation": { "$ref": "#/$defs/enums/seekerOccupation" },
+        "languages": { "type": "array", "items": { "$ref": "#/$defs/enums/language" } }
+      }
+    },
+
+    "_search": {
+      "type": "object",
+      "description": "Flattened/lowercased index fields mirrored from metadata + location + details for fast querying.",
+      "properties": {
+        "adId": { "type": "string" },
+        "userid": { "type": "string" },
+        "status": { "$ref": "#/$defs/enums/status" },
+        "adexpirystatus": { "$ref": "#/$defs/enums/adexpirystatus" },
+        "adactivedate": { "type": "string", "format": "date" },
+        "adexpirydate": { "type": "string", "format": "date" },
+        "title_lowercase": { "type": "string" },
+        "city": { "type": "string" },
+        "locality": { "type": "string" },
+        "subLocality": { "type": "string" },
+        "district": { "type": "string" },
+        "state": { "type": "string" },
+        "stateCode": { "type": ["string", "null"] },
+        "country": { "type": "string" },
+        "countryCode": { "type": ["string", "null"] },
+        "metroArea": { "type": "string" },
+        "zipcode": { "type": ["string", "null"] },
+        "rent": { "type": "number" },
+        "currency": { "type": "string" },
+        "beds": { "type": "number" },
+        "baths": { "type": "number" },
+        "propertyType": { "type": ["string", "null"] },
+        "category": { "$ref": "#/$defs/enums/category" },
+        "intent": { "$ref": "#/$defs/enums/intent" }
+      }
+    }
+  },
+
+  "allOf": [
+    {
+      "if": { "properties": { "metadata": { "properties": { "intent": { "const": "list" } } }, "required": ["metadata"] } },
+      "then": {
+        "required": ["propertyDetails", "preferences"],
+        "not": { "anyOf": [ { "required": ["roomDetails"] }, { "required": ["seeker"] } ] }
+      }
+    },
+    {
+      "if": { "properties": { "metadata": { "properties": { "intent": { "const": "find" } } }, "required": ["metadata"] } },
+      "then": {
+        "required": ["roomDetails", "seeker"],
+        "not": { "anyOf": [ { "required": ["propertyDetails"] }, { "required": ["preferences"] } ] }
+      }
+    }
+  ],
+
+  "$defs": {
+    "enums": {
+      "status": { "type": "string", "enum": ["enable", "disable"] },
+      "adexpirystatus": { "type": "string", "enum": ["active", "expiry"] },
+      "intent": { "type": "string", "enum": ["find", "list"] },
+      "category": { "type": "string", "enum": ["room", "property"] },
+      "furnishing": { "type": "string", "enum": ["unfurnished", "furnished_with_bed", "semi_furnished", "fully_furnished"] },
+      "amenity": {
+        "type": "string",
+        "enum": ["gym_fitness_center", "swimming_pool", "car_park", "visitors_parking", "power_backup", "garbage_disposal", "private_lawn", "water_heater_plant", "security_system", "laundry_service", "elevator", "club_house"]
+      },
+      "utility": {
+        "type": "string",
+        "enum": ["gas", "internet_wifi", "cable_tv", "trash_pickup", "sewer", "ceiling_fan", "water", "electricity", "room_heater", "air_conditioner", "refrigerator", "dishwasher", "kitchen", "microwave", "washer", "dryer", "ice_maker", "freezer", "covered_parking", "garage", "ev_charging", "wheelchair_access", "doorman_concierge", "package_lockers", "bbq_grill_area", "playground", "pet_area_dog_park", "balcony_patio", "smoke_detector", "carbon_monoxide_detector", "fire_extinguisher", "intercom", "smart_thermostat", "cctv", "window_coverings_blinds"]
+      },
+      "propertyType": {
+        "type": "string",
+        "enum": ["single_family_home", "apartment", "condo", "townhouse", "homes", "houses", "shared_room", "single_room", "paying_guest", "others"]
+      },
+      "genderPreference": { "type": "string", "enum": ["any", "male_only", "female_only"] },
+      "occupation": { "type": "string", "enum": ["students_only", "professionals_only", "no_preference", "others"], "default": "Any" },
+      "smoking": { "type": "string", "enum": ["no_smoking", "smoking_ok", "smoke_outside_only"], "default": "Any" },
+      "pets": { "type": "string", "enum": ["no_pets", "only_dogs", "only_cats", "any_pet_ok"], "default": "Any" },
+      "vegetarian": { "type": "string", "enum": ["vegetarian", "non_vegetarian", "both"], "default": "Any" },
+      "ageRange": { "type": "string", "enum": ["18_to_99", "18_to_25", "18_to_50", "25_to_45", "40_to_55", "55_to_70", "70_plus"], "default": "Any" },
+      "yesNoGender": { "type": "string", "enum": ["Male", "Female", "Any"] },
+      "yesNo": { "type": "string", "enum": ["Yes", "No"] },
+      "seekerGender": { "type": "string", "enum": ["male", "female", "other"] },
+      "seekerOccupation": { "type": "string", "enum": ["professional", "student", "other"] },
+      "language": {
+        "type": "string",
+        "enum": ["English", "Hindi", "Tamil", "Telugu", "Malayalam", "Gujarati", "Bengali", "Kannada", "Urdu", "Manipuri", "Marathi", "Nepali", "Oriya", "Punjabi", "Sanskrit", "Sindhi", "Santhali", "Maithili", "Dogri", "Assamese", "Konkani", "Kashmiri", "Other"]
+      }
+    }
+  },
+
+  "examples": [
+    {
+      "adId": "20260706143500000987",
+      "metadata": {
+        "status": "enable",
+        "adexpirystatus": "active",
+        "adtimezone": "America/New_York",
+        "admetroarea": "new-york-metro-area",
+        "adactivedate": "2026-07-04",
+        "adexpirydate": "2026-08-01",
+        "intent": "find",
+        "category": "room",
+        "role": "I am an individual"
+      },
+      "user": { "uid": "u2", "displayName": "Amit S", "email": null, "phone": null, "isVerified": false, "role": "I am an individual", "business": null },
+      "location": {
+        "display": "Queens, NY", "formattedAddress": null, "street": null, "city": "Queens", "locality": null, "subLocality": null,
+        "district": null, "state": "New York", "stateCode": "NY", "country": "United States", "countryCode": "US",
+        "metroArea": "new-york-metro-area", "zipcode": null, "lat": null, "lng": null,
+        "neighborhoods": { "primary": null, "secondary": [] }, "showOnMap": false
+      },
+      "details": {
+        "title": "Looking for a room near Queens",
+        "description": "Working professional looking for a shared room.",
+        "rent": { "amount": 0, "currency": "USD", "mode": "per_month", "isNegotiable": false, "isHidden": false, "utilitiesIncluded": false, "deposit": 0 },
+        "availability": { "from": "2026-07-04", "to": "2100-12-31", "stayType": { "short": false, "long": true }, "daysAvailable": "7 days a week" },
+        "amenities": [], "utilities": [], "furnishing": "unfurnished",
+        "openHouse": { "date": "", "startTime": "", "endTime": "" }
+      },
+      "privacy": { "showAddressOnMap": false, "hideAddressOnAd": true, "hidePhoneOnAd": true, "hideEmailOnAd": true, "onWhatsApp": false, "sharePhone": false },
+      "photos": [],
+      "roomDetails": { "bathType": "", "bathPreference": "", "genderPreference": "any", "accommodates": "", "accommodationType": "" },
+      "seeker": { "age": 27, "gender": "male", "occupation": "professional", "languages": ["English", "Hindi"] },
+      "_search": {
+        "adId": "20260706143500000987", "userid": "u2", "status": "enable", "adexpirystatus": "active",
+        "adactivedate": "2026-07-04", "adexpirydate": "2026-08-01", "title_lowercase": "looking for a room near queens",
+        "city": "queens", "locality": "", "subLocality": "", "district": "", "state": "new york", "stateCode": "NY",
+        "country": "united states", "countryCode": "US", "metroArea": "new-york-metro-area", "zipcode": null,
+        "rent": 0, "currency": "USD", "beds": 0, "baths": 0, "propertyType": "shared_room", "category": "room", "intent": "find"
+      }
+    },
+    {
+      "adId": "20260706143012000321",
+      "metadata": {
+        "status": "enable",
+        "adexpirystatus": "active",
+        "adtimezone": "America/New_York",
+        "admetroarea": "new-york-metro-area",
+        "adactivedate": "2026-07-06",
+        "adexpirydate": "2026-08-03",
+        "intent": "list",
+        "category": "property",
+        "role": "I am the property owner"
+      },
+      "user": { "uid": "u1", "displayName": "Rajesh K", "email": "rajesh@example.com", "phone": "+1XXXXXXXXXX", "isVerified": true, "role": "I am the property owner", "business": null },
+      "location": {
+        "display": "Floral Park, NY", "formattedAddress": "Floral Park, NY 11001", "street": null, "city": "Floral Park", "locality": null,
+        "subLocality": null, "district": null, "state": "New York", "stateCode": "NY", "country": "United States", "countryCode": "US",
+        "metroArea": "new-york-metro-area", "zipcode": "11001", "lat": 40.7229, "lng": -73.7018,
+        "neighborhoods": { "primary": null, "secondary": [] }, "showOnMap": false
+      },
+      "details": {
+        "title": "2 Bedroom Apartment For Rent On Jericho Tpke.",
+        "description": "Bright 2BR apartment, close to transit.",
+        "rent": { "amount": 2200, "currency": "USD", "mode": "per_month", "isNegotiable": false, "isHidden": false, "utilitiesIncluded": false, "deposit": 2200 },
+        "availability": { "from": "2026-07-06", "to": "2100-12-31", "stayType": { "short": false, "long": true }, "daysAvailable": "7 days a week" },
+        "amenities": ["car_park", "elevator"], "utilities": ["internet_wifi", "water", "electricity"], "furnishing": "unfurnished",
+        "openHouse": { "date": "", "startTime": "", "endTime": "" }
+      },
+      "privacy": { "showAddressOnMap": false, "hideAddressOnAd": true, "hidePhoneOnAd": true, "hideEmailOnAd": true, "onWhatsApp": false, "sharePhone": false },
+      "photos": ["https://cdn.example.com/ads/20260706143012000321/1.jpg"],
+      "propertyDetails": { "propertyType": "apartment", "accommodationType": "", "squareFeet": 950, "beds": 2, "baths": 1, "buildingName": null, "isShared": false },
+      "preferences": {
+        "occupation": "professionals_only", "smoking": "no_smoking", "pets": "Any", "vegetarian": "Any", "ageRange": "Any",
+        "preferredGender": "Any", "couplesWelcome": "Yes", "alcoholAllowed": "Yes", "languages": []
+      },
+      "_search": {
+        "adId": "20260706143012000321", "userid": "u1", "status": "enable", "adexpirystatus": "active",
+        "adactivedate": "2026-07-06", "adexpirydate": "2026-08-03", "title_lowercase": "2 bedroom apartment for rent on jericho tpke.",
+        "city": "floral park", "locality": "", "subLocality": "", "district": "", "state": "new york", "stateCode": "NY",
+        "country": "united states", "countryCode": "US", "metroArea": "new-york-metro-area", "zipcode": "11001",
+        "rent": 2200, "currency": "USD", "beds": 2, "baths": 1, "propertyType": "apartment", "category": "property", "intent": "list"
+      }
+    }
+  ]
+}
