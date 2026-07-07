@@ -111,13 +111,13 @@
     "debugMode": {
       "title": "Debug Mode",
       "type": "boolean",
-      "description": "Enable verbose logging for debugging.",
+      "description": "active verbose logging for debugging.",
       "default": false
     },
     "googleMapsApiKey": {
       "title": "Google Maps API Key",
       "type": "string",
-      "description": "Google Maps Geocoding API key. Used to enrich scraped ads with lat/lng, city, state, country, district and metroArea from the property's ZIP code. Get it from https://console.cloud.google.com → APIs & Services → Credentials. Requires the Geocoding API to be enabled.",
+      "description": "Google Maps Geocoding API key. Used to enrich scraped ads with lat/lng, city, state, country, district and metroArea from the property's ZIP code. Get it from https://console.cloud.google.com → APIs & Services → Credentials. Requires the Geocoding API to be actived.",
       "editor": "textfield",
       "isSecret": true
     }

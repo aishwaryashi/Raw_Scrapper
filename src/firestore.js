@@ -225,9 +225,9 @@ function deriveIntent(scr) {
 // ── Closed-vocabulary preference/enum normalizers ─────────────────────────────
 
 function normalizeStatus(raw) {
-  if (raw == null) return 'enable';
+  if (raw == null) return 'active';
   const s = String(raw).toLowerCase();
-  return /disable|inactive|false|expired|closed/.test(s) ? 'disable' : 'enable';
+  return /disable|inactive|false|expired|closed/.test(s) ? 'disable' : 'active';
 }
 
 function normalizeExpiryStatus(raw) {
@@ -633,7 +633,7 @@ async function buildFirestoreDoc(adData, opts = {}) {
       hideAddressOnAd:  priv.hideAddress     === true,
       hidePhoneOnAd:    priv.hidePhone       === true,
       hideEmailOnAd:    priv.hideEmail       === true,
-      onWhatsApp:       priv.whatsappEnabled === true,
+      onWhatsApp:       priv.whatsappactived === true,
       sharePhone:       priv.hidePhone       !== true,
     },
 

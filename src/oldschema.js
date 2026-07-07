@@ -602,7 +602,7 @@ async function buildFirestoreDoc(adData) {
       hideAddressOnAd:  priv.hideAddress     === true,
       hideEmailOnAd:    priv.hideEmail       === true,
       hidePhoneOnAd:    priv.hidePhone       === true,
-      onWhatsApp:       priv.whatsappEnabled === true,
+      onWhatsApp:       priv.whatsappactived === true,
       sharePhone:       priv.hidePhone       !== true,
       showAddressOnMap: priv.mapVisibility   !== false,
     },

@@ -1312,9 +1312,9 @@ function extractPrivacy(ad, raw) {
     hidePhone: coalesce(deepGet(privObj, ['hidePhone']), deepGet(ad, ['hidePhone']), deepGet(ad, ['maskPhone'])),
     hideEmail: coalesce(deepGet(privObj, ['hideEmail']), deepGet(ad, ['hideEmail']), deepGet(ad, ['maskEmail'])),
     hideAddress: coalesce(deepGet(privObj, ['hideAddress']), deepGet(ad, ['hideAddress'])),
-    whatsappEnabled: coalesce(
-      deepGet(privObj, ['whatsappEnabled']),
-      deepGet(ad, ['whatsappEnabled']),
+    whatsappactived: coalesce(
+      deepGet(privObj, ['whatsappactived']),
+      deepGet(ad, ['whatsappactived']),
       deepGet(ad, ['whatsapp']),
     ),
     mapVisibility: coalesce(

@@ -261,7 +261,7 @@
 
   "$defs": {
     "enums": {
-      "status": { "type": "string", "enum": ["enable", "disable"] },
+      "status": { "type": "string", "enum": ["active", "disable"] },
       "adexpirystatus": { "type": "string", "enum": ["active", "expiry"] },
       "intent": { "type": "string", "enum": ["find", "list"] },
       "category": { "type": "string", "enum": ["room", "property"] },
@@ -299,7 +299,7 @@
     {
       "adId": "20260706143500000987",
       "metadata": {
-        "status": "enable",
+        "status": "active",
         "adexpirystatus": "active",
         "adtimezone": "America/New_York",
         "admetroarea": "new-york-metro-area",
@@ -329,7 +329,7 @@
       "roomDetails": { "bathType": "", "bathPreference": "", "genderPreference": "any", "accommodates": "", "accommodationType": "" },
       "seeker": { "age": 27, "gender": "male", "occupation": "professional", "languages": ["English", "Hindi"] },
       "_search": {
-        "adId": "20260706143500000987", "userid": "u2", "status": "enable", "adexpirystatus": "active",
+        "adId": "20260706143500000987", "userid": "u2", "status": "active", "adexpirystatus": "active",
         "adactivedate": "2026-07-04", "adexpirydate": "2026-08-01", "title_lowercase": "looking for a room near queens",
         "city": "queens", "locality": "", "subLocality": "", "district": "", "state": "new york", "stateCode": "NY",
         "country": "united states", "countryCode": "US", "metroArea": "new-york-metro-area", "zipcode": null,
@@ -339,7 +339,7 @@
     {
       "adId": "20260706143012000321",
       "metadata": {
-        "status": "enable",
+        "status": "active",
         "adexpirystatus": "active",
         "adtimezone": "America/New_York",
         "admetroarea": "new-york-metro-area",
@@ -372,7 +372,7 @@
         "preferredGender": "Any", "couplesWelcome": "Yes", "alcoholAllowed": "Yes", "languages": []
       },
       "_search": {
-        "adId": "20260706143012000321", "userid": "u1", "status": "enable", "adexpirystatus": "active",
+        "adId": "20260706143012000321", "userid": "u1", "status": "active", "adexpirystatus": "active",
         "adactivedate": "2026-07-06", "adexpirydate": "2026-08-03", "title_lowercase": "2 bedroom apartment for rent on jericho tpke.",
         "city": "floral park", "locality": "", "subLocality": "", "district": "", "state": "new york", "stateCode": "NY",
         "country": "united states", "countryCode": "US", "metroArea": "new-york-metro-area", "zipcode": "11001",
