@@ -21,7 +21,6 @@ import {
   stats,
   randomUserAgent,
   randomViewport,
-  buildHeaders,
   isDetailUrl,
   isListingUrl,
   isDuplicate,
@@ -53,7 +52,10 @@ const inputConfig = {
   minDelayMs: input.minDelayMs ?? 2000,
   maxDelayMs: input.maxDelayMs ?? 7000,
   useProxy: input.useProxy !== false,
-  proxyConfig: input.proxyConfig ?? { useApifyProxy: true, apifyProxyGroups: ['RESIDENTIAL'] },
+  // Pinned to US: the target site serves US rental listings, and an unpinned
+  // residential exit node landing outside the US can get served region-specific
+  // stripped/empty listing content (0 ads found) instead of the real page.
+  proxyConfig: input.proxyConfig ?? { useApifyProxy: true, apifyProxyGroups: ['RESIDENTIAL'], apifyProxyCountry: 'US' },
   interceptApiCalls: input.interceptApiCalls !== false,
   extractNextData: input.extractNextData !== false,
   extractLdJson: input.extractLdJson !== false,
@@ -181,8 +183,15 @@ const crawler = new PlaywrightCrawler({
         // Set viewport
         await page.setViewportSize(viewport);
 
-        // Override user agent
-        await page.setExtraHTTPHeaders(buildHeaders(ua));
+        // NOTE: do NOT call page.setExtraHTTPHeaders() here. It forces the same
+        // static Sec-Fetch-*/Accept-Encoding header set onto EVERY request the
+        // page makes (document, images, XHR, scripts alike), which is a known
+        // Playwright fingerprint mismatch — real browsers vary Sec-Fetch-Dest
+        // per resource type. Anti-bot systems key on exactly this to silently
+        // serve a stripped/empty page (200 OK, no ads) instead of erroring, which
+        // is what caused "Found 0 detail URLs" despite the page having 66 ads.
+        // browserPoolOptions.useFingerprints (below) already injects a
+        // consistent, realistic UA + header set per launched browser context.
 
         // Stealth: override navigator properties
         await page.addInitScript((userAgent) => {

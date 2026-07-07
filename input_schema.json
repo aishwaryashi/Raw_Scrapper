@@ -75,10 +75,11 @@
     "proxyConfig": {
       "title": "Proxy Configuration",
       "type": "object",
-      "description": "Apify Proxy configuration. Only used when useProxy is true.",
+      "description": "Apify Proxy configuration. Only used when useProxy is true. Pinned to the US since the target site serves US rental listings.",
       "default": {
         "useApifyProxy": true,
-        "apifyProxyGroups": ["RESIDENTIAL"]
+        "apifyProxyGroups": ["RESIDENTIAL"],
+        "apifyProxyCountry": "US"
       },
       "editor": "proxy"
     },

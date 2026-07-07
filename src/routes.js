@@ -106,6 +106,21 @@ export async function handleListing(context, inputConfig, requestQueue) {
   }
 
   log.info(`[LISTING] Found ${detailUrls.length} detail URLs on ${truncate(url, 80)}`);
+
+  // Diagnostic: 0 detail URLs on what should be a populated listing page usually
+  // means the response wasn't the real page (bot-mitigation interstitial, CAPTCHA,
+  // geo-blocked variant) rather than "no ads exist". Log enough of the page to
+  // tell the two apart on the next run instead of it silently looking like a
+  // legitimate empty result.
+  if (detailUrls.length === 0) {
+    const titleMatch = html.match(/<title[^>]*>([^<]*)<\/title>/i);
+    log.warning(
+      `[LISTING] 0 detail URLs found — page may not be the real listing (bot check / geo block). ` +
+      `title="${titleMatch ? titleMatch[1].trim() : 'unknown'}", htmlBytes=${html.length}`
+    );
+    log.warning(`[LISTING] Body snippet: ${truncate(html.replace(/\s+/g, ' '), 300)}`);
+  }
+
   stats.adsFound += detailUrls.length;
 
   // Enqueue all detail URLs
