@@ -345,6 +345,23 @@ function deepGet(obj, path) {
   return cur;
 }
 
+// Labels of the "LABEL\nVALUE\nLABEL\nVALUE..." quick-facts block that some
+// description containers render inline right after the actual overview text
+// (e.g. "AVAILABLE FROM\n01 Jun 2026\nACCOMODATES\n4\n..."). Used to trim that
+// block back out wherever description text is scraped from such a container.
+const QUICK_FACT_LABELS = new Set([
+  'AVAILABLE FROM', 'ACCOMODATES', 'POSTED BY', 'ROOM TYPE', 'EXPECTED RENT',
+  'BEDROOMS', 'BATHROOMS', 'AREA', 'STAY TYPE', 'ACCOMODATION TYPE',
+  'DEPOSIT', 'COUPLES ALLOWED',
+]);
+
+function stripQuickFactsBlock(text) {
+  if (!text) return text;
+  const lines = text.split('\n');
+  const cutLine = lines.findIndex(l => QUICK_FACT_LABELS.has(l.trim().toUpperCase()));
+  return cutLine !== -1 ? lines.slice(0, cutLine).join('\n').trim() : text;
+}
+
 function getText($, selectors) {
   for (const sel of selectors) {
     const text = $(sel).first().text().trim();
@@ -779,13 +796,13 @@ function extractProperty(ad, raw, $) {
 
 function extractDescription(ad, raw, $) {
   return {
-    fullDescription: coalesce(
+    fullDescription: stripQuickFactsBlock(coalesce(
       deepGet(ad, ['description']),
       deepGet(ad, ['adDescription']),
       deepGet(ad, ['details']),
       deepGet(ad, ['aboutProperty']),
       getText($, ['.ad-description', '.description', '[class*="description"]', '[itemprop="description"]']),
-    ),
+    )),
     extraNotes: coalesce(
       deepGet(ad, ['extraNotes']),
       deepGet(ad, ['notes']),
@@ -1397,6 +1414,20 @@ async function extractLiveDom(page) {
         overview = el.innerText.trim();
         break;
       }
+    }
+
+    // Strip the trailing "LABEL\nVALUE\nLABEL\nVALUE..." quick-facts block
+    // (e.g. "AVAILABLE FROM\n01 Jun 2026\nACCOMODATES\n4\n...") that some
+    // description containers include inline after the actual overview text.
+    if (overview) {
+      const quickFactLabels = new Set([
+        'AVAILABLE FROM', 'ACCOMODATES', 'POSTED BY', 'ROOM TYPE', 'EXPECTED RENT',
+        'BEDROOMS', 'BATHROOMS', 'AREA', 'STAY TYPE', 'ACCOMODATION TYPE',
+        'DEPOSIT', 'COUPLES ALLOWED',
+      ]);
+      const lines = overview.split('\n');
+      const cutLine = lines.findIndex(l => quickFactLabels.has(l.trim().toUpperCase()));
+      if (cutLine !== -1) overview = lines.slice(0, cutLine).join('\n').trim();
     }
 
     // ── Posted By: look for visible "Posted by" label in DOM ──────────────
@@ -2071,6 +2102,20 @@ export async function extractScrapedAdDetails({ url, html, page }) {
         };
       };
       const quickFacts = parseQuickFacts(description) || {};
+
+      // Strip the trailing "LABEL\nVALUE\nLABEL\nVALUE..." quick-facts block
+      // (already parsed above) back out of the description text, so the
+      // description contains only the human-written overview.
+      if (description) {
+        const quickFactLabels = new Set([
+          'AVAILABLE FROM', 'ACCOMODATES', 'POSTED BY', 'ROOM TYPE', 'EXPECTED RENT',
+          'BEDROOMS', 'BATHROOMS', 'AREA', 'STAY TYPE', 'ACCOMODATION TYPE',
+          'DEPOSIT', 'COUPLES ALLOWED',
+        ]);
+        const lines = description.split('\n');
+        const cutLine = lines.findIndex(l => quickFactLabels.has(l.trim().toUpperCase()));
+        if (cutLine !== -1) description = lines.slice(0, cutLine).join('\n').trim();
+      }
 
       // ── Section arrays ────────────────────────────────────────────────────
       const amenities = extractSection(/^amenities$/i);
