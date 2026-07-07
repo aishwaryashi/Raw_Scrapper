@@ -30,7 +30,7 @@ const FIXED_USER = {
   email: 'urjaonly@gmail.com',
   isVerified: true,
   phone: '+917309022755',
-  uid: '6gktdvJsapcUKvJVVCT5j1sN3Ct2',
+  uid: 'Iq0azyjzY5RImBOcy91nRG5TuVB3',
 };
 
 let db = null;
