@@ -2034,6 +2034,44 @@ export async function extractScrapedAdDetails({ url, html, page }) {
         if (oh?.nextElementSibling) description = (oh.nextElementSibling.innerText || '').trim() || null;
       }
 
+      // ── Quick-facts block (fallback for grid fields) ───────────────────────
+      // The overview text (captured above as `description`) ends with a
+      // reliable "LABEL\nVALUE\nLABEL\nVALUE..." block, e.g.:
+      //   "AVAILABLE FROM\n01 Jun 2026\nACCOMODATES\n4\nPOSTED BY\nRitesh Shah\n
+      //    ROOM TYPE\nApartment\nEXPECTED RENT\n$2,200 /Month\nBEDROOMS\n2 Beds\n
+      //    BATHROOMS\n1 Bath\nAREA\n600 sqft\n..."
+      // Because this block sits inline as plain text (not separate label/value
+      // elements), extractGrid()'s nextElementSibling-based lookup skips right
+      // past the real value and lands on a distant, unrelated element (the
+      // "Contact Advertiser" form / related-listings section) for whichever
+      // label happens to lack its own wrapped value element — corrupting
+      // fields like bedrooms/area/availableFrom with huge unrelated text.
+      // Parsing this labeled block directly with regex sidesteps that fragile
+      // DOM-sibling walk entirely.
+      const parseQuickFacts = (text) => {
+        if (!text) return {};
+        const grab = (label) => {
+          const re = new RegExp(`${label}\\s*\\n\\s*([^\\n]+)`, 'i');
+          const m = text.match(re);
+          return m ? m[1].trim() : null;
+        };
+        return {
+          availableFrom:     grab('AVAILABLE FROM'),
+          accommodates:      grab('ACCOM+ODATES'),
+          postedBy:          grab('POSTED BY'),
+          roomType:          grab('ROOM TYPE'),
+          rent:              grab('EXPECTED RENT'),
+          bedrooms:          grab('BEDROOMS'),
+          bathrooms:         grab('BATHROOMS'),
+          areaSqft:          grab('AREA'),
+          stayType:          grab('STAY TYPE'),
+          accommodationType: grab('ACCOM+ODATION TYPE'),
+          deposit:           grab('DEPOSIT'),
+          couplesAllowed:    grab('COUPLES ALLOWED'),
+        };
+      };
+      const quickFacts = parseQuickFacts(description) || {};
+
       // ── Section arrays ────────────────────────────────────────────────────
       const amenities = extractSection(/^amenities$/i);
       const utilities = extractSection(/^utilities$/i);
@@ -2205,7 +2243,7 @@ export async function extractScrapedAdDetails({ url, html, page }) {
       const emailMatch = bodyText.match(/[\w.+\-]+@[\w\-]+\.[a-z]{2,}/i);
 
       return {
-        title, grid, postedOn, adIdOnSite,
+        title, grid, quickFacts, postedOn, adIdOnSite,
         postedBy: grid.postedBy || postedByFromText,
         description,
         address: { fullAddress, city, state, zipcode, county, nearbyUniversity, nearbyNeighborhoods },
@@ -2216,22 +2254,35 @@ export async function extractScrapedAdDetails({ url, html, page }) {
     });
 
     // ── Merge into result ─────────────────────────────────────────────────────
-    const g = d.grid || {};
+    const g  = d.grid || {};
+    const qf = d.quickFacts || {};
+
+    // extractGrid()'s nextElementSibling walk grabs a distant unrelated element
+    // (see the quick-facts comment above) whenever a label's value is inline
+    // text rather than its own element — the tell is an implausibly long
+    // string. Treat anything over 60 chars as corrupted rather than trusting it.
+    const sane = (v, max = 60) => (typeof v === 'string' && v.trim() && v.length <= max) ? v : null;
 
     result.title              = d.title;
     result.adType             = g.adType             || null;
     result.propertyCategory   = g.propertyCategory   || null;
-    result.bedrooms           = g.bedrooms            || null;
-    result.bathrooms          = g.bathrooms           || null;
-    result.areaSqft           = g.areaSqft ? g.areaSqft.replace(/[^\d.]/g, '') || g.areaSqft : null;
-    result.availableFrom      = g.availableFrom       || null;
-    result.rent               = g.rent               || null;
-    result.deposit            = g.deposit ? g.deposit.replace(/^\$/, '') : null;
-    result.accommodates       = g.accommodates        || null;
-    result.roomType           = g.roomType            || null;
-    result.stayType           = g.stayType            || null;
-    result.accommodationType  = g.accommodationType   || null;
-    result.couplesAllowed     = g.couplesAllowed      || null;
+    result.bedrooms           = qf.bedrooms           || sane(g.bedrooms)           || null;
+    result.bathrooms          = qf.bathrooms          || sane(g.bathrooms)          || null;
+    result.areaSqft           = (() => {
+      const raw = qf.areaSqft || sane(g.areaSqft);
+      return raw ? (raw.replace(/[^\d.]/g, '') || raw) : null;
+    })();
+    result.availableFrom      = qf.availableFrom      || sane(g.availableFrom)      || null;
+    result.rent               = qf.rent               || sane(g.rent)               || null;
+    result.deposit            = (() => {
+      const raw = qf.deposit || sane(g.deposit);
+      return raw ? raw.replace(/^\$/, '') : null;
+    })();
+    result.accommodates       = qf.accommodates       || sane(g.accommodates)       || null;
+    result.roomType           = qf.roomType           || sane(g.roomType)           || null;
+    result.stayType           = qf.stayType           || sane(g.stayType)           || null;
+    result.accommodationType  = qf.accommodationType  || sane(g.accommodationType)  || null;
+    result.couplesAllowed     = qf.couplesAllowed      || sane(g.couplesAllowed)     || null;
     result.postedBy           = d.postedBy            || null;
     result.postedOn           = d.postedOn            || null;
     result.adIdOnSite         = d.adIdOnSite          || adId;

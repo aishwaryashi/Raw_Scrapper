@@ -467,7 +467,7 @@ async function fetchUsMetroAreaByLatLng(lat, lng) {
 
 // ─── Document builder (schema/ad-output-schema.json) ─────────────────────────
 
-async function buildFirestoreDoc(adData) {
+async function buildFirestoreDoc(adData, opts = {}) {
   const prop  = adData.property     || {};
   const loc   = adData.location     || {};
   const meta  = adData.metadata     || {};
@@ -514,8 +514,10 @@ async function buildFirestoreDoc(adData) {
   const expiryDateStr   = toDateStr(expiryTimestamp) || n(meta.adExpiryDate);
 
   // ── metro area: TIGERweb for US, scraped value otherwise ─────────────────
-  let effectiveMetroArea = n(loc.metroArea) || '';
-  if ((n(loc.countryCode) || '').toUpperCase() === 'US') {
+  // Skip the (slow, external) TIGERweb call when the caller already confirmed
+  // a prior save has good geo for this ad — reuse it instead of re-fetching.
+  let effectiveMetroArea = opts.existingLocation?.metroArea || n(loc.metroArea) || '';
+  if (!opts.existingLocation?.metroArea && (n(loc.countryCode) || '').toUpperCase() === 'US') {
     const lat = typeof n(loc.latitude)  === 'number' ? n(loc.latitude)  : null;
     const lng = typeof n(loc.longitude) === 'number' ? n(loc.longitude) : null;
     if (lat != null && lng != null) {
@@ -705,6 +707,10 @@ async function buildFirestoreDoc(adData) {
   return doc;
 }
 
+// Exported for direct testing (e.g. verifying against a real scraped adData
+// sample without needing Firestore credentials or a live crawl).
+export { buildFirestoreDoc };
+
 // ─── Save ─────────────────────────────────────────────────────────────────────
 
 /**
@@ -728,37 +734,23 @@ export async function saveAdToFirestore(adData) {
   try {
     const docRef = db.collection(ADS_COLLECTION).doc(String(adId));
     const existing = await docRef.get();
+    const existingLoc = existing.exists ? (existing.data()?.location || null) : null;
 
-    if (existing.exists) {
-      // Re-save only if any of the three required geo fields are missing.
-      const existingLoc = existing.data()?.location || {};
-      const missingGeo =
-        existingLoc.lat      == null ||
-        !existingLoc.locality  ||
-        !existingLoc.metroArea;
+    // Every re-scrape already paid the crawl cost, so it should always refresh
+    // the stored document with the latest (hopefully more complete/correct)
+    // extraction — never silently discard a fresh, better scrape just because
+    // an earlier save already had geo fields filled in. The only thing worth
+    // skipping when geo is already known-good is the slow external TIGERweb
+    // lookup itself (buildFirestoreDoc reuses existingLoc.metroArea for that).
+    const geoIsComplete =
+      existingLoc &&
+      existingLoc.lat      != null &&
+      existingLoc.locality &&
+      existingLoc.metroArea;
 
-      if (!missingGeo) {
-        log.info(`[FIRESTORE] Ad ${adId} already complete (lat/locality/metroArea present) — skipping.`);
-        return false;
-      }
-
-      const doc = await buildFirestoreDoc(adData);
-      await docRef.update({
-        'location':          doc.location,
-        '_search.city':      doc._search.city,
-        '_search.district':  doc._search.district,
-        '_search.locality':  doc._search.locality,
-        '_search.metroArea': doc._search.metroArea,
-        '_search.stateCode': doc._search.stateCode,
-        '_search.zipcode':   doc._search.zipcode,
-      });
-      log.info(`[FIRESTORE] Updated ad ${adId} — filled missing geo fields (lat/locality/metroArea).`);
-      return true;
-    }
-
-    const doc = await buildFirestoreDoc(adData);
+    const doc = await buildFirestoreDoc(adData, { existingLocation: geoIsComplete ? existingLoc : null });
     await docRef.set(doc);
-    log.info(`[FIRESTORE] Saved ad ${adId} to "${ADS_COLLECTION}" collection.`);
+    log.info(`[FIRESTORE] ${existing.exists ? 'Refreshed' : 'Saved'} ad ${adId} in "${ADS_COLLECTION}" collection.`);
     return true;
   } catch (err) {
     log.error(`[FIRESTORE] Save failed for ad ${adId}: ${err.message}`);
